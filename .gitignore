@@ -1,0 +1,59 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__
+*.so
+*.dylib
+*.egg
+*.egg-info
+dist
+build
+.eggs
+MANIFEST
+*.log
+
+# Django
+*.db
+*.sqlite3
+/static/
+media/
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+Dockerfile*
+docker-compose.yml
+*.log
+*.pid
+*.swp
+.vscode/
+.idea/
+
+# Virtual environment
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# MySQL/PostgreSQL
+*.sql
+*.db
+*.dump
+*.sql.gz
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Env files
+.env
+.env.*
