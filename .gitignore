@@ -18,6 +18,7 @@ MANIFEST
 *.sqlite3
 /static/
 media/
+/staticfiles/
 
 # Docker
 docker-compose.override.yml
