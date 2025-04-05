@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:15
+    container_name: fynd_db
+    restart: always
+    env_file:
+      - ./config/.env.docker
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    # environment:
+    #   POSTGRES_DB: fynd_db
+    #   POSTGRES_USER: fynd_user
+    #   POSTGRES_PASSWORD: fynd_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  web:
+    build: .
+    container_name: fynd_web
+    restart: always
+    depends_on:
+      - db
+    env_file:
+      - ./config/.env.docker
+    environment:
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+      DJANGO_SETTINGS_MODULE: fynd.settings
+    # environment:
+    #   DATABASE_NAME: fynd_db
+    #   DATABASE_USER: fynd_user
+    #   DATABASE_PASSWORD: fynd_password
+    #   DATABASE_HOST: db
+    #   DATABASE_PORT: 5432
+    #   DJANGO_SETTINGS_MODULE: fynd.settings
+    volumes:
+      - .:/app 
+    ports:
+      - "8000:8000"
+    # command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+volumes:
+  postgres_data:

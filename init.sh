@@ -20,6 +20,8 @@ if created:
 else:
     print("The superuser already exists.")
 
+python manage.py collectstatic
+
 EOF
 
 # Starting the server

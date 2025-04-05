@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+from django.utils import timezone
+from datetime import timedelta
 
 class Fynder(AbstractUser):
     GENDER_CHOICES = (
@@ -21,4 +22,14 @@ class Fynder(AbstractUser):
     gender = models.CharField(max_length=17, choices=GENDER_CHOICES, default='prefer_not_to_say')
     
 
+class TemporaryCode(models.Model):
+    user = models.OneToOneField(Fynder, on_delete=models.CASCADE)
+    code = models.CharField(max_length=6, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def is_expired(self):
+        return timezone.now() > self.created_at + timedelta(minutes=2)
+
+    def _str_(self):
+        return f"Temporary Code for {self.user.email}"
 

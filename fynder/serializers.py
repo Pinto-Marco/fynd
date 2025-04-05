@@ -63,3 +63,12 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
+    
+class RequestTemporaryCodeSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+class VerifyTemporaryCodeSerializer(serializers.Serializer):
+    code = serializers.CharField(max_length=6)
+
+class ChangePasswordNewSerializer(serializers.Serializer):
+    new_password = serializers.CharField(write_only=True, required=True)

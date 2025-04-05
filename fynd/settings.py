@@ -185,12 +185,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
-STATIC_URL = 'static/'
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
@@ -240,6 +234,11 @@ EMAIL_FROM_NAME = os.getenv("EMAIL_FROM_NAME", default="Suasi APP")
 
 # static
 STATIC_URL = '/static/'
+
+# Se hai file statici extra, assicurati che siano correttamente inclusi
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # Aggiungi questa riga se hai una cartella statica personalizzata
+]
 
 # Impostazione di STATIC_ROOT per quando esegui collectstatic
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')

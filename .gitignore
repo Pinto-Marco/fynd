@@ -23,8 +23,6 @@ media/
 # Docker
 docker-compose.override.yml
 .dockerignore
-Dockerfile*
-docker-compose.yml
 *.log
 *.pid
 *.swp
