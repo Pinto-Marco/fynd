@@ -126,31 +126,4 @@ docker volume rm fynd_postgres_data
 ```
 Nota: Questo comando cancellerà tutti i dati del database, quindi usalo con cautela.
 
-# Comandi aggiuntivi
-Alcuni comandi utili per gestire il progetto:
-
-Accedere al container web:
-
-```python
-docker exec -it fynd_web bash
-```
-Visualizzare i log del container web:
-
-```python
-docker logs fynd_web
-```
-Fermare e rimuovere tutti i container, volumi e immagini:
-
-```python
-docker compose down --rmi all --volumes --remove-orphans
-```
-
-# Problemi comuni
-Container non avviato
-Se i container non si avviano correttamente, puoi eseguire:
-
-```python
-docker compose logs
-```
-Per diagnosticare eventuali errori di configurazione o di avvio.
 

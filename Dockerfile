@@ -17,11 +17,6 @@ RUN useradd -m -s /bin/bash dockeruser \
     && echo "dockeruser:password" | chpasswd \
     && adduser dockeruser sudo
 
-
-# CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-
-# CMD [ "/init.sh" ]
-
 COPY init.sh /init.sh
 RUN chmod +x /init.sh
 CMD ["/bin/bash", "/init.sh"]

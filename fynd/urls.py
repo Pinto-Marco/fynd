@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import path
 from django.urls import path, include, re_path
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from django.conf import settings
+from django.conf.urls.static import static
 
 from fynder import views as fynder_views
 
@@ -33,6 +35,4 @@ urlpatterns = [
     path('api/dj-rest-auth/apple/', fynder_views.AppleLogin.as_view(), name='apple-login'),
     # fynder app urls
     path('api/fynder/', include('fynder.urls')),
-
-
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
