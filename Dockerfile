@@ -7,6 +7,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 RUN pip install gunicorn
 
+# Installa netcat per lo script di wait-for-db
+RUN apt-get update && apt-get install -y netcat-openbsd bash
+
 
 COPY . .
 
@@ -18,5 +21,14 @@ RUN useradd -m -s /bin/bash dockeruser \
     && adduser dockeruser sudo
 
 COPY init.sh /init.sh
-RUN chmod +x /init.sh
+COPY wait_for_db.sh /wait_for_db.sh
+
+RUN chmod +x /init.sh /wait_for_db.sh
+
+# Verifica i permessi
+RUN ls -l /wait_for_db.sh
+
+RUN which bash
+
+
 CMD ["/bin/bash", "/init.sh"]

@@ -1,3 +1,9 @@
+#!/bin/sh
+
+
+# Aspetta il DB
+./wait_for_db.sh
+
 python manage.py migrate
 
 
