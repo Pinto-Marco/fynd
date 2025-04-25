@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from . import models as fynder_models 
 
 User = get_user_model()
 
@@ -30,36 +31,31 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         })
         return data
 
-class UserUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        exclude = ('password', 'is_superuser', 'is_staff', 'last_login', 'is_active', 'date_joined', 'groups', 'user_permissions')
+class AllPossibleFoodPreferencesSerializer(serializers.Serializer):
+    food_preferences = serializers.ListField(child=serializers.ChoiceField(choices=fynder_models.FoodPreference.FOOD_PREFERENCE_CHOICES))
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            field.required = False
-
-    def update(self, instance, validated_data):
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-        return instance
-    
 class UserUpdateSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(required=False)  # Non obbligatorio
-    username = serializers.CharField(max_length=150, required=False)  # Non obbligatorio
-    first_name = serializers.CharField(max_length=150, required=False)  # Non obbligatorio
-    last_name = serializers.CharField(max_length=150, required=False)  # Non obbligatorio
-    gender = serializers.ChoiceField(choices=User.GENDER_CHOICES, required=False)  # Non obbligatorio
-    has_new_letter = serializers.BooleanField(required=False)  # Non obbligatorio
+    # food_preferences = serializers.ChoiceField(choices=fynder_models.FoodPreference.FOOD_PREFERENCE_CHOICES, required=False)
+    food_preferences = serializers.ListField(child=serializers.ChoiceField(choices=fynder_models.FoodPreference.FOOD_PREFERENCE_CHOICES), required=False)
 
     class Meta:
         model = User
-        fields = ('email', 'username', 'first_name', 'last_name', 'gender', 'has_new_letter')
+        exclude = ('password', 'is_superuser', 'is_staff', 'last_login', 'is_active', 'date_joined', 'groups', 'user_permissions',
+                   'interest_culture_heritage', 'interest_nature_outdoors', 'interest_food_gastronomy', 'interest_nightlife_party', 'interest_wellness_spa', 'interest_sport_adventure', 'interest_music_festivals', 'interest_shopping_fashion' )
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
+            if attr == 'food_preferences':
+                for food_preference in value:
+                    choices=fynder_models.FoodPreference.FOOD_PREFERENCE_CHOICES
+                    if food_preference not in [choice[0] for choice in choices]:
+                        raise serializers.ValidationError(f"{food_preference} is not a valid food preference.")
+                    else:
+                        fynder_models.FoodPreference.objects.update_or_create(
+                            fynder=instance,
+                            label=food_preference,
+                            defaults={'label': food_preference}
+                        )
             setattr(instance, attr, value)
         instance.save()
         return instance
@@ -72,3 +68,15 @@ class VerifyTemporaryCodeSerializer(serializers.Serializer):
 
 class ChangePasswordNewSerializer(serializers.Serializer):
     new_password = serializers.CharField(write_only=True, required=True)
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    food_preferences = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        exclude = ('password', 'is_superuser', 'is_staff', 'last_login', 'is_active', 'date_joined', 'groups', 'user_permissions')
+
+    def get_food_preferences(self, obj):
+        food_preferences = fynder_models.FoodPreference.objects.filter(fynder=obj)
+        return [food_preference.label for food_preference in food_preferences]
+

@@ -97,7 +97,7 @@ class CustomTokenRefreshView(TokenRefreshView):
 class UserUpdateView(generics.UpdateAPIView):
     serializer_class = fynder_serializers.UserUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]
-    http_method_names = ["put"]
+    http_method_names = ["patch"]
 
     def get_object(self):
         return self.request.user
@@ -106,8 +106,8 @@ class UserUpdateView(generics.UpdateAPIView):
         summary="Update User Info",
         description="Updates the user's profile information (excluding password). This PUT method also supports partial updates.",
     )
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
 
 
@@ -212,7 +212,7 @@ class VerifyTemporaryCodeView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ChangePasswordNewView(APIView):
+class ChangePasswordView(APIView):
     """
     API endpoint per cambiare la password dell'utente loggato.
     """
@@ -246,3 +246,28 @@ class ChangePasswordNewView(APIView):
                 'refresh': refresh_token,
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserProfileView(generics.RetrieveAPIView):
+    serializer_class = fynder_serializers.UserProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    def get_object(self):
+        return self.request.user
+    @extend_schema(
+        summary="User Profile",
+        description="Retrieves the user's profile information.",
+    )
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+class PossibleFoodPreferencesView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = fynder_serializers.AllPossibleFoodPreferencesSerializer
+    
+    @extend_schema(
+        summary="Possible Food Preferences",
+        description="Retrieves a list of possible food preferences.",
+    )
+    def get(self, request, *args, **kwargs):
+        food_preferences = [choice[0] for choice in fynder_models.FoodPreference.FOOD_PREFERENCE_CHOICES]
+        return Response({"food_preferences": food_preferences})
+    
