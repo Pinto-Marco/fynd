@@ -139,15 +139,20 @@ class SignUpFynderAnswerSerializer(serializers.ModelSerializer):
                 answer=answer
             )
         
+class GetSignUpFynderAnswerSerializer(serializers.ModelSerializer):
+    question_id = serializers.SerializerMethodField()
+    question_text = serializers.SerializerMethodField()
+    answers = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = fynder_models.SignUpFynderAnswer
+        fields = ('question_id', 'question_text', 'answers')
 
-    # def save(self, **kwargs):
-    #     fynder = fynder_models.Fynder(kwargs.pop('fynder'))
-    #     question_id = self.validated_data.get('question_id')
-    #     answers = self.validated_data.get('answers')
-    #     fynder.delete_all_sign_up_answers_by_question_id(question_id)
-    #     for answer_id in answers:
-    #         answer = fynder_models.SignUpAnswer.objects.filter(id=answer_id).first()
-    #         fynder_models.SignUpFynderAnswer.objects.create(
-    #             fynder=fynder.id,
-    #             answer=answer,
-    #         )
+    def get_question_id(self, obj):
+        return obj.answer.question.id
+
+    def get_question_text(self, obj):
+        return obj.answer.question.question_text
+
+    def get_answers(self, obj):
+        return [{'id': answer.id, 'answer_text': answer.answer_text} for answer in obj.fynder.get_all_sign_up_answers_by_question_id(obj.answer.question.id)]

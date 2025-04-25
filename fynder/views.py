@@ -310,4 +310,15 @@ class FynderSignUpQuestionAnswerView(APIView):
             return_serializer = fynder_serializers.UserProfileSerializer(fynder)
             return Response(return_serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(
+        summary="Get Sign Up Question Answer",
+        description="Retrieves a list of question answers for the logged-in user.",
+        responses={200: fynder_serializers.GetSignUpFynderAnswerSerializer(many=True)}
+    )
+    def get(self, request, *args, **kwargs):
+        fynder = request.user
+        answers = fynder_models.SignUpFynderAnswer.objects.filter(fynder=fynder).order_by('answer__question__id').distinct('answer__question__id')
+        serializer = fynder_serializers.GetSignUpFynderAnswerSerializer(answers, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
         

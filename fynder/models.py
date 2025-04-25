@@ -35,13 +35,16 @@ class Fynder(AbstractUser):
     interest_shopping_fashion = models.FloatField(default=0.00, help_text="Interest level in Shopping & Fashion (0-100)")
 
     def get_all_sign_up_answers(self):
-        answers = SignUpFynderAnswer.objects.filter(fynder=self)
+        fynder_answers = SignUpFynderAnswer.objects.filter(fynder=self)
+        answers = [answer.answer for answer in fynder_answers]
         if not answers:
             return []
         return answers
 
     def get_all_sign_up_answers_by_question_id(self, question_id):
-        answers = SignUpFynderAnswer.objects.filter(fynder=self, answer__question_id=question_id)
+        fynder_answers = SignUpFynderAnswer.objects.filter(fynder=self, answer__question_id=question_id)
+        # return just the answer of SignUpFynderAnswer
+        answers = [answer.answer for answer in fynder_answers]
         if not answers:
             return []
         return answers
@@ -194,4 +197,5 @@ class SignUpAnswer(models.Model):
 class SignUpFynderAnswer(models.Model):
     fynder = models.ForeignKey(Fynder, on_delete=models.CASCADE)
     answer = models.ForeignKey(SignUpAnswer, on_delete=models.CASCADE)
+
 
