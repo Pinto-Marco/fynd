@@ -22,6 +22,7 @@ from . import utils as fynder_utils
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import update_session_auth_hash
 from . import models as fynder_models
+from . import serializers as fynder_serializers
 
 
 class CustomAppleOAuth2Client(AppleOAuth2Client):
@@ -107,7 +108,12 @@ class UserUpdateView(generics.UpdateAPIView):
         description="Updates the user's profile information (excluding password). This PUT method also supports partial updates.",
     )
     def patch(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
+        instance = self.get_object()
+        serializer = fynder_serializers.UserUpdateSerializer(instance, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return_serializer = fynder_serializers.UserProfileSerializer(instance)
+            return Response(return_serializer.data, status=status.HTTP_200_OK)
 
 
 

@@ -41,7 +41,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         exclude = ('password', 'is_superuser', 'is_staff', 'last_login', 'is_active', 'date_joined', 'groups', 'user_permissions',
-                   'interest_culture_heritage', 'interest_nature_outdoors', 'interest_food_gastronomy', 'interest_nightlife_party', 'interest_wellness_spa', 'interest_sport_adventure', 'interest_music_festivals', 'interest_shopping_fashion' )
+                   )
+        read_only_fields = ('interest_culture_heritage', 'interest_nature_outdoors', 'interest_food_gastronomy', 'interest_nightlife_party', 'interest_wellness_spa', 'interest_sport_adventure', 'interest_music_festivals', 'interest_shopping_fashion')
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
