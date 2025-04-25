@@ -260,9 +260,10 @@ class UserProfileView(generics.RetrieveAPIView):
         return self.request.user
     @extend_schema(
         summary="User Profile",
-        description="Retrieves the user's profile information.",
+        description="Retrieves the user's profile information. Includes food preferences which is a list of strings.",
     )
     def get(self, request, *args, **kwargs):
+
         return self.retrieve(request, *args, **kwargs)
 
 class PossibleFoodPreferencesView(APIView):
