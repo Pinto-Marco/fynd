@@ -35,7 +35,6 @@ class AllPossibleFoodPreferencesSerializer(serializers.Serializer):
     food_preferences = serializers.ListField(child=serializers.ChoiceField(choices=fynder_models.FynderFoodPreference.FOOD_PREFERENCE_CHOICES))
 
 class UserUpdateSerializer(serializers.ModelSerializer):
-    # food_preferences = serializers.ChoiceField(choices=fynder_models.FoodPreference.FOOD_PREFERENCE_CHOICES, required=False)
     food_preferences = serializers.ListField(child=serializers.ChoiceField(choices=fynder_models.FynderFoodPreference.FOOD_PREFERENCE_CHOICES), required=False)
 
     class Meta:
@@ -52,12 +51,17 @@ class UserUpdateSerializer(serializers.ModelSerializer):
                     if food_preference not in [choice[0] for choice in choices]:
                         raise serializers.ValidationError(f"{food_preference} is not a valid food preference.")
                     else:
+                        for choice in choices:
+                            old = fynder_models.FynderFoodPreference.objects.filter(fynder=instance, label=choice[0]).first()
+                            if old:
+                                old.delete()
                         fynder_models.FynderFoodPreference.objects.update_or_create(
                             fynder=instance,
                             label=food_preference,
                             defaults={'label': food_preference}
                         )
-            setattr(instance, attr, value)
+            else:
+                setattr(instance, attr, value)
         instance.save()
         return instance
     
