@@ -32,11 +32,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return data
 
 class AllPossibleFoodPreferencesSerializer(serializers.Serializer):
-    food_preferences = serializers.ListField(child=serializers.ChoiceField(choices=fynder_models.FoodPreference.FOOD_PREFERENCE_CHOICES))
+    food_preferences = serializers.ListField(child=serializers.ChoiceField(choices=fynder_models.FynderFoodPreference.FOOD_PREFERENCE_CHOICES))
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     # food_preferences = serializers.ChoiceField(choices=fynder_models.FoodPreference.FOOD_PREFERENCE_CHOICES, required=False)
-    food_preferences = serializers.ListField(child=serializers.ChoiceField(choices=fynder_models.FoodPreference.FOOD_PREFERENCE_CHOICES), required=False)
+    food_preferences = serializers.ListField(child=serializers.ChoiceField(choices=fynder_models.FynderFoodPreference.FOOD_PREFERENCE_CHOICES), required=False)
 
     class Meta:
         model = User
@@ -48,11 +48,11 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         for attr, value in validated_data.items():
             if attr == 'food_preferences':
                 for food_preference in value:
-                    choices=fynder_models.FoodPreference.FOOD_PREFERENCE_CHOICES
+                    choices=fynder_models.FynderFoodPreference.FOOD_PREFERENCE_CHOICES
                     if food_preference not in [choice[0] for choice in choices]:
                         raise serializers.ValidationError(f"{food_preference} is not a valid food preference.")
                     else:
-                        fynder_models.FoodPreference.objects.update_or_create(
+                        fynder_models.FynderFoodPreference.objects.update_or_create(
                             fynder=instance,
                             label=food_preference,
                             defaults={'label': food_preference}
@@ -78,6 +78,58 @@ class UserProfileSerializer(serializers.ModelSerializer):
         exclude = ('password', 'is_superuser', 'is_staff', 'last_login', 'is_active', 'date_joined', 'groups', 'user_permissions')
 
     def get_food_preferences(self, obj):
-        food_preferences = fynder_models.FoodPreference.objects.filter(fynder=obj)
+        food_preferences = fynder_models.FynderFoodPreference.objects.filter(fynder=obj)
         return [food_preference.label for food_preference in food_preferences]
 
+
+class PossibleSignUpQuestionAnswerSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    question_text = serializers.CharField()
+    answers = serializers.SerializerMethodField()
+
+    class Meta:
+        model = fynder_models.SignUpQuestion
+        fields = ('id', 'question_text', 'answers')
+
+    def get_answers(self, obj):
+        answers = obj.get_all_answers()
+        data = []
+        for answer in answers:
+            data.append({'id': answer.id, 'answer_text': answer.answer_text})
+        return data
+
+class SignUpFynderAnswerSerializer(serializers.ModelSerializer):
+    question_id = serializers.IntegerField()
+    answers = serializers.ListField(child=serializers.IntegerField())
+
+    class Meta:
+        model = fynder_models.SignUpFynderAnswer
+        fields = ('question_id', 'answers')
+
+    def validate(self, attrs):
+        question_id = attrs.get('question_id')
+        answers = attrs.get('answers')
+        question = fynder_models.SignUpQuestion.objects.filter(id=question_id).first()
+        if not question:
+            raise serializers.ValidationError("Invalid question ID")
+
+        answers_count = len(answers)
+        if answers_count < 1 or answers_count > 4:
+            raise serializers.ValidationError("Answers count must be between 1 and 4")
+        for answer_id in answers:
+            answer = fynder_models.SignUpAnswer.objects.filter(id=answer_id).first()
+            if not answer:
+                raise serializers.ValidationError("Invalid answer ID")
+        return attrs
+
+    def save(self, **kwargs):
+        fynder = fynder_models.Fynder(kwargs.pop('fynder'))
+        question_id = self.validated_data.get('question_id')
+        answers = self.validated_data.get('answers')
+        fynder.delete_all_sign_up_answers_by_question_id(question_id)
+        for answer_id in answers:
+            answer = fynder_models.SignUpAnswer.objects.filter(id=answer_id).first()
+            fynder_models.SignUpFynderAnswer.objects.create(
+                fynder=fynder.id,
+                answer=answer,
+            )

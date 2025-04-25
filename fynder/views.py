@@ -275,6 +275,34 @@ class PossibleFoodPreferencesView(APIView):
         description="Retrieves a list of possible food preferences.",
     )
     def get(self, request, *args, **kwargs):
-        food_preferences = [choice[0] for choice in fynder_models.FoodPreference.FOOD_PREFERENCE_CHOICES]
-        return Response({"food_preferences": food_preferences})
+        food_preferences = [choice[0] for choice in fynder_models.FynderFoodPreference.FOOD_PREFERENCE_CHOICES]
+        return Response({"food_preferences": food_preferences}, status=status.HTTP_200_OK)
     
+class PossibleSignUpQuestionAnswerView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = fynder_serializers.PossibleSignUpQuestionAnswerSerializer
+
+    @extend_schema(
+        summary="Possible Question Answer",
+        description="Retrieves a list of possible questions and answers.",
+    )
+    def get(self, request, *args, **kwargs):
+        questions = fynder_models.SignUpQuestion.objects.all()
+        serializer = self.serializer_class(questions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class FynderSignUpQuestionAnswerView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = fynder_serializers.SignUpFynderAnswerSerializer
+
+    @extend_schema(
+        summary="Sign Up Question Answer",
+        description="Creates or updates a question answer for the logged-in user.",
+    )
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save(fynder=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        

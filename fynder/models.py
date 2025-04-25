@@ -33,8 +33,30 @@ class Fynder(AbstractUser):
     interest_sport_adventure = models.FloatField(default=0.00, help_text="Interest level in Sport & Adventure (0-100)")
     interest_music_festivals = models.FloatField(default=0.00, help_text="Interest level in Music & Festivals (0-100)")
     interest_shopping_fashion = models.FloatField(default=0.00, help_text="Interest level in Shopping & Fashion (0-100)")
+
+    def __str__(self):
+        return self.username
+
+    def get_all_sign_up_answers(self):
+        answers = SignUpFynderAnswer.objects.filter(fynder=self)
+        if not answers:
+            return []
+        return answers
+
+    def get_all_sign_up_answers_by_question_id(self, question_id):
+        answers = SignUpFynderAnswer.objects.filter(fynder=self, answer__question_id=question_id)
+        if not answers:
+            return []
+        return answers
+
+    def delete_all_sign_up_answers_by_question_id(self, question_id):
+        answers = SignUpFynderAnswer.objects.filter(fynder=self.id, answer__question_id=question_id)
+        if answers:
+            for answer in answers:
+                answer.delete()
+
     
-class FoodPreference(models.Model):
+class FynderFoodPreference(models.Model):
     FOOD_PREFERENCE_CHOICES = (
         ('Any', 'Any'),
         ('Pescatarian', 'Pescatarian'),
@@ -44,6 +66,9 @@ class FoodPreference(models.Model):
     fynder = models.ForeignKey(Fynder, on_delete=models.CASCADE)
     label = models.CharField(max_length=20, choices=FOOD_PREFERENCE_CHOICES, default='any')
 
+    def __str__(self):
+        return self.label
+
 class TemporaryCode(models.Model):
     user = models.OneToOneField(Fynder, on_delete=models.CASCADE)
     code = models.CharField(max_length=6, unique=True)
@@ -52,6 +77,38 @@ class TemporaryCode(models.Model):
     def is_expired(self):
         return timezone.now() > self.created_at + timedelta(minutes=2)
 
-    def _str_(self):
+    def __str__(self):
         return f"Temporary Code for {self.user.email}"
 
+class SignUpQuestion(models.Model):
+    question_text = models.CharField(max_length=200)
+    weight = models.FloatField(default=1.0)
+
+    def __str__(self):
+        return self.question_text
+
+    def get_all_answers(self):
+        answers = SignUpAnswer.objects.filter(question=self)
+        if not answers:
+            return []
+        return answers
+
+class SignUpAnswer(models.Model):
+    question = models.ForeignKey(SignUpQuestion, on_delete=models.CASCADE)
+    answer_text = models.CharField(max_length=200)
+    interest_culture_heritage = models.FloatField(default=0.0, help_text="Interest level in Culture & Heritage (0-0.5-1)")
+    interest_nature_outdoors = models.FloatField(default=0.0, help_text="Interest level in Nature & Outdoors (0-0.5-1)")
+    interest_food_gastronomy = models.FloatField(default=0.0, help_text="Interest level in Food & Gastronomy (0-0.5-1)")
+    interest_nightlife_party = models.FloatField(default=0.0, help_text="Interest level in Nightlife & Party (0-0.5-1)")
+    interest_wellness_spa = models.FloatField(default=0.0, help_text="Interest level in Wellness & Spa (0-0.5-1)")
+    interest_sport_adventure = models.FloatField(default=0.0, help_text="Interest level in Sport & Adventure (0-0.5-1)")
+    interest_music_festivals = models.FloatField(default=0.0, help_text="Interest level in Music & Festivals (0-0.5-1)")
+    interest_shopping_fashion = models.FloatField(default=0.0, help_text="Interest level in Shopping & Fashion (0-0.5-1)")
+
+
+    def __str__(self):
+        return f"{self.question.question_text}: {self.answer_text}"
+
+class SignUpFynderAnswer(models.Model):
+    fynder = models.ForeignKey(Fynder, on_delete=models.CASCADE)
+    answer = models.ForeignKey(SignUpAnswer, on_delete=models.CASCADE)

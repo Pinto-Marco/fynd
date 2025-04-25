@@ -11,4 +11,6 @@ urlpatterns = [
     path('verify-temporary-code/', views.VerifyTemporaryCodeView.as_view(), name='verify-temporary-code'),
     path('change-password/', views.ChangePasswordView.as_view(), name='change-password'),
     path("possible-food-preferences/", views.PossibleFoodPreferencesView.as_view(), name="possible-food-preferences"),
+    path('possible-sign-up-question-answer/', views.PossibleSignUpQuestionAnswerView.as_view(), name='possible-sign-up-question-answer'),
+    path('fynder-sign-up-question-answer/', views.FynderSignUpQuestionAnswerView.as_view(), name='fynder-sign-up-question-answer'),
 ]
