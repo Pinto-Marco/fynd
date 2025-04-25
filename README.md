@@ -52,13 +52,21 @@ APPLE_PRIVATE_KEY=APPLE_PRIVATE_KEY
 JWT_AUTH_HTTPONLY=True
 
 # MAIL
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
 EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=
+EMAIL_PORT=465
+EMAIL_USE_SSL=True
+EMAIL_USE_TLS=False
+EMAIL_USER=example@example.com
 EMAIL_PASSWORD=
-EMAIL_FROM_NAME=
+EMAIL_FROM_NAME=FYND
+
 ```
-Nota: Assicurati di sostituire le variabili GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, ecc., con i tuoi valori reali per l'integrazione con i social media. Aggiungi anche le credenziali per l'invio delle email.
+Nota: Assicurati di sostituire le variabili GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, ecc., con i tuoi valori reali per l'integrazione con i social media. 
+Aggiungi anche le credenziali per l'invio delle email tramite gmail e google: vai nel sito https://myaccount.google.com/apppasswords e crea una nuova password per l'accesso, chiama l'app FYND. Devi avere la "2 Step Verification" abilitata https://myaccount.google.com/security.
+ .
+
+
 
 **Costruisci e avvia i container**
 

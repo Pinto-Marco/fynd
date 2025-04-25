@@ -34,4 +34,4 @@ python manage.py collectstatic --noinput
 # Starting the server
 echo "Starting the server..."
 
-gunicorn fynd.wsgi:application --bind 0.0.0.0:8000 --workers 3
+# gunicorn fynd.wsgi:application --bind 0.0.0.0:8000 --workers 3

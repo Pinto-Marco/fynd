@@ -1,0 +1,52 @@
+appoggio fynd
+
+
+
+docker compose --env-file ./config/.env.docker up -d --build
+
+docker exec -it fynd_web bash
+
+docker volume rm fynd_postgres_data
+
+docker exec -it fynd_web env | grep DATABASE
+
+docker logs fynd_web
+
+docker compose down --rmi all --volumes --remove-orphans
+
+
+
+
+
+
+
+
+56.228.2.180
+
+
+ssh -i ~/Downloads/Cocci\ EC21.pem ec2-user@56.228.2.180
+
+scp -i ~/Downloads/Cocci\ EC21.pem -r ./django/cocci.zip ec2-user@56.228.2.180:~
+
+sudo yum install unzip 
+
+
+sudo yum update -y
+sudo yum install docker -y
+sudo systemctl start docker
+
+
+docker build -t myapp .
+docker run -d -p 80:8000 myapp
+docker exec -it 492f01a80fd3 bash
+docker logs 492f01a80fd3
+docker rm $(docker ps -a -q)
+docker volume prune
+docker stop $(docker ps -aq)
+docker rm $(docker ps -aq)
+docker volume prune -f
+docker build -t myapp .
+docker run -p 80:8000 myapp
+
+
+

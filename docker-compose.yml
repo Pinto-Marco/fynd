@@ -21,7 +21,7 @@ services:
   web:
     build: .
     container_name: fynd_web
-    restart: always
+    # restart: always
     depends_on:
       - db
     env_file:
