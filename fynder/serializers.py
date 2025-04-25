@@ -122,14 +122,32 @@ class SignUpFynderAnswerSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Invalid answer ID")
         return attrs
 
-    def save(self, **kwargs):
-        fynder = fynder_models.Fynder(kwargs.pop('fynder'))
-        question_id = self.validated_data.get('question_id')
-        answers = self.validated_data.get('answers')
+    def create(self, validated_data):
+        fynder = validated_data.pop('fynder')
+        question_id = validated_data.pop('question_id')
+        answer_ids = validated_data.pop('answers')
+        
+        # Delete existing answers for this question
         fynder.delete_all_sign_up_answers_by_question_id(question_id)
-        for answer_id in answers:
-            answer = fynder_models.SignUpAnswer.objects.filter(id=answer_id).first()
-            fynder_models.SignUpFynderAnswer.objects.create(
-                fynder=fynder.id,
-                answer=answer,
+        
+        # Create new answers
+        created_answers = []
+        for answer_id in answer_ids:
+            answer = fynder_models.SignUpAnswer.objects.get(id=answer_id)
+            answer_obj = fynder_models.SignUpFynderAnswer.objects.create(
+                fynder=fynder,
+                answer=answer
             )
+        
+
+    # def save(self, **kwargs):
+    #     fynder = fynder_models.Fynder(kwargs.pop('fynder'))
+    #     question_id = self.validated_data.get('question_id')
+    #     answers = self.validated_data.get('answers')
+    #     fynder.delete_all_sign_up_answers_by_question_id(question_id)
+    #     for answer_id in answers:
+    #         answer = fynder_models.SignUpAnswer.objects.filter(id=answer_id).first()
+    #         fynder_models.SignUpFynderAnswer.objects.create(
+    #             fynder=fynder.id,
+    #             answer=answer,
+    #         )

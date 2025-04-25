@@ -298,11 +298,16 @@ class FynderSignUpQuestionAnswerView(APIView):
     @extend_schema(
         summary="Sign Up Question Answer",
         description="Creates or updates a question answer for the logged-in user.",
+        request=fynder_serializers.SignUpFynderAnswerSerializer(many=True),
+        responses={201: fynder_serializers.SignUpFynderAnswerSerializer(many=True)}
     )
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
+        fynder = request.user
+        serializer = self.serializer_class(data=request.data, many=True)
         if serializer.is_valid():
-            serializer.save(fynder=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            serializer.save(fynder=fynder)
+            fynder = fynder.set_calculate_interest()
+            return_serializer = fynder_serializers.UserProfileSerializer(fynder)
+            return Response(return_serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         

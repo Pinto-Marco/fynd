@@ -34,9 +34,6 @@ class Fynder(AbstractUser):
     interest_music_festivals = models.FloatField(default=0.00, help_text="Interest level in Music & Festivals (0-100)")
     interest_shopping_fashion = models.FloatField(default=0.00, help_text="Interest level in Shopping & Fashion (0-100)")
 
-    def __str__(self):
-        return self.username
-
     def get_all_sign_up_answers(self):
         answers = SignUpFynderAnswer.objects.filter(fynder=self)
         if not answers:
@@ -54,6 +51,91 @@ class Fynder(AbstractUser):
         if answers:
             for answer in answers:
                 answer.delete()
+
+    def set_calculate_interest(self):
+        total_interest_culture_heritage = 0.0
+        total_interest_nature_outdoors = 0.0
+        total_interest_food_gastronomy = 0.0
+        total_interest_nightlife_party = 0.0
+        total_interest_wellness_spa = 0.0
+        total_interest_sport_adventure = 0.0
+        total_interest_music_festivals = 0.0
+        total_interest_shopping_fashion = 0.0
+        questions = SignUpQuestion.objects.all()
+        total_weight = 0.0
+
+        for question in questions:
+            # prendere il peso della domanda
+            weight = question.weight
+            total_weight += weight
+            # massimo interesse tra tutti i valori
+            max_score = weight 
+            # prendere tutte le risposte a quella domanda
+            sign_up_answers = SignUpFynderAnswer.objects.filter(fynder=self, answer__question_id=question.id)
+            # calcolare il numero totale di risposte a quella domande
+            total_answers = sign_up_answers.count()
+            if total_answers > 0:
+                # calcolare la base della domanda (peso / numero risposte)
+                base = weight / total_answers
+                # azzerare variabili per ogni interesse 
+                question_interest_culture_heritage = 0.0
+                question_interest_nature_outdoors = 0.0
+                question_interest_food_gastronomy = 0.0
+                question_interest_nightlife_party = 0.0
+                question_interest_wellness_spa = 0.0
+                question_interest_sport_adventure = 0.0
+                question_interest_music_festivals = 0.0
+                question_interest_shopping_fashion = 0.0
+                #ciclo su risposte
+                for sign_up_answer in sign_up_answers:
+                    question_interest_culture_heritage += base * sign_up_answer.answer.interest_culture_heritage
+                    question_interest_nature_outdoors += base * sign_up_answer.answer.interest_nature_outdoors
+                    question_interest_food_gastronomy += base * sign_up_answer.answer.interest_food_gastronomy
+                    question_interest_nightlife_party += base * sign_up_answer.answer.interest_nightlife_party
+                    question_interest_wellness_spa += base * sign_up_answer.answer.interest_wellness_spa
+                    question_interest_sport_adventure += base * sign_up_answer.answer.interest_sport_adventure
+                    question_interest_music_festivals += base * sign_up_answer.answer.interest_music_festivals
+                    question_interest_shopping_fashion += base * sign_up_answer.answer.interest_shopping_fashion
+                
+                if question_interest_culture_heritage > max_score:
+                    question_interest_culture_heritage = max_score
+                if question_interest_nature_outdoors > max_score:
+                    question_interest_nature_outdoors = max_score
+                if question_interest_food_gastronomy > max_score:
+                    question_interest_food_gastronomy = max_score
+                if question_interest_nightlife_party > max_score:
+                    question_interest_nightlife_party = max_score
+                if question_interest_wellness_spa > max_score:
+                    question_interest_wellness_spa = max_score
+                if question_interest_sport_adventure > max_score:
+                    question_interest_sport_adventure = max_score
+                if question_interest_music_festivals > max_score:
+                    question_interest_music_festivals = max_score
+                if question_interest_shopping_fashion > max_score:
+                    question_interest_shopping_fashion = max_score
+
+                total_interest_culture_heritage += question_interest_culture_heritage
+                total_interest_nature_outdoors += question_interest_nature_outdoors
+                total_interest_food_gastronomy += question_interest_food_gastronomy
+                total_interest_nightlife_party += question_interest_nightlife_party
+                total_interest_wellness_spa += question_interest_wellness_spa
+                total_interest_sport_adventure += question_interest_sport_adventure
+                total_interest_music_festivals += question_interest_music_festivals
+                total_interest_shopping_fashion += question_interest_shopping_fashion
+
+
+        if total_weight > 0:
+            self.interest_culture_heritage = (total_interest_culture_heritage / total_weight) * 100
+            self.interest_nature_outdoors = (total_interest_nature_outdoors / total_weight) * 100
+            self.interest_food_gastronomy = (total_interest_food_gastronomy / total_weight) * 100
+            self.interest_nightlife_party = (total_interest_nightlife_party / total_weight) * 100
+            self.interest_wellness_spa = (total_interest_wellness_spa / total_weight) * 100
+            self.interest_sport_adventure = (total_interest_sport_adventure / total_weight) * 100
+            self.interest_music_festivals = (total_interest_music_festivals / total_weight) * 100
+            self.interest_shopping_fashion = (total_interest_shopping_fashion / total_weight) * 100
+            self.save()
+
+        return self
 
     
 class FynderFoodPreference(models.Model):
@@ -112,3 +194,4 @@ class SignUpAnswer(models.Model):
 class SignUpFynderAnswer(models.Model):
     fynder = models.ForeignKey(Fynder, on_delete=models.CASCADE)
     answer = models.ForeignKey(SignUpAnswer, on_delete=models.CASCADE)
+
