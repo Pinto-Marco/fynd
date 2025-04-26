@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'drf_spectacular_sidecar',
     'rest_framework_simplejwt',
     # my apps
+    'info.apps.InfoConfig',
 
 ]
 
