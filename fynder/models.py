@@ -168,6 +168,7 @@ class TemporaryCode(models.Model):
 class SignUpQuestion(models.Model):
     question_text = models.CharField(max_length=200)
     weight = models.FloatField(default=1.0)
+    max_number_of_answers = models.IntegerField(default=4)
 
     def __str__(self):
         return self.question_text
