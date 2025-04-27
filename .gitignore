@@ -58,3 +58,6 @@ Thumbs.db
 .env.*
 
 CreateOrderAPI*
+
+# Booking documentation
+CreateOrderAPI*
