@@ -13,6 +13,7 @@ class Activity(models.Model):
         ('Mercato', 'Mercato'),
         ('Negozi particolari', 'Negozi particolari'),
         ('Spa', 'Spa'),
+        ('Spiaggia', 'Spiaggia'),
     )
 
     GENERATION_CATEGORIES = (
@@ -24,6 +25,7 @@ class Activity(models.Model):
         ('Viaggio Notturno e di Divertimento', 'Viaggio Notturno e di Divertimento'),
         ('Ritiro di Benessere in Natura', 'Ritiro di Benessere in Natura'),
         ('Viaggio di Lusso', 'Viaggio di Lusso'),
+        ('Vacanza con Macchina', 'Vacanza con Macchina'),
     )
 
     name = models.CharField(max_length=255)
@@ -33,14 +35,24 @@ class Activity(models.Model):
     generation_category = models.CharField(max_length=50, choices=GENERATION_CATEGORIES)
 
     # Interest Categories (stored as percentages)
-    interest_culture_heritage = models.FloatField(default=0.00, help_text="Interest level in Culture & Heritage (0-100)")
-    interest_nature_outdoors = models.FloatField(default=0.00, help_text="Interest level in Nature & Outdoors (0-100)")
-    interest_food_gastronomy = models.FloatField(default=0.00, help_text="Interest level in Food & Gastronomy (0-100)")
-    interest_nightlife_party = models.FloatField(default=0.00, help_text="Interest level in Nightlife & Party (0-100)")
-    interest_wellness_spa = models.FloatField(default=0.00, help_text="Interest level in Wellness & Spa (0-100)")
-    interest_sport_adventure = models.FloatField(default=0.00, help_text="Interest level in Sport & Adventure (0-100)")
-    interest_music_festivals = models.FloatField(default=0.00, help_text="Interest level in Music & Festivals (0-100)")
-    interest_shopping_fashion = models.FloatField(default=0.00, help_text="Interest level in Shopping & Fashion (0-100)")
+    # interest_culture_heritage = models.FloatField(default=0.00, help_text="Interest level in Culture & Heritage (0-100)")
+    # interest_nature_outdoors = models.FloatField(default=0.00, help_text="Interest level in Nature & Outdoors (0-100)")
+    # interest_food_gastronomy = models.FloatField(default=0.00, help_text="Interest level in Food & Gastronomy (0-100)")
+    # interest_nightlife_party = models.FloatField(default=0.00, help_text="Interest level in Nightlife & Party (0-100)")
+    # interest_wellness_spa = models.FloatField(default=0.00, help_text="Interest level in Wellness & Spa (0-100)")
+    # interest_sport_adventure = models.FloatField(default=0.00, help_text="Interest level in Sport & Adventure (0-100)")
+    # interest_music_festivals = models.FloatField(default=0.00, help_text="Interest level in Music & Festivals (0-100)")
+    # interest_shopping_fashion = models.FloatField(default=0.00, help_text="Interest level in Shopping & Fashion (0-100)")
+    # Interest Categories
+    interest_culture_heritage = models.BooleanField(default=False)
+    interest_nature_outdoors = models.BooleanField(default=False)
+    interest_food_gastronomy = models.BooleanField(default=False)
+    interest_nightlife_party = models.BooleanField(default=False)
+    interest_wellness_spa = models.BooleanField(default=False)
+    interest_sport_adventure = models.BooleanField(default=False)
+    interest_music_festivals = models.BooleanField(default=False)
+    interest_shopping_fashion = models.BooleanField(default=False)
+
 
     # Activity-specific fields
     website = models.URLField(blank=True, null=True)
