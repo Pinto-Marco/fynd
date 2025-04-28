@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     # my apps
     'info.apps.InfoConfig',
+    'trip.apps.TripConfig',
 
 ]
 
@@ -273,3 +274,18 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:5174',  # Se usi localhost
     'http://localhost:8000',
 ]
+
+
+
+# 
+# VIATOR_API_URL_TEST=https://sandbox.viator.com/partner
+# VIATOR_API_KEY_TEST=59ac00cb-0e8a-49aa-aba9-4ac560addf54
+# VIATOR_API_URL_PROD=https://api.viator.com/partner
+# VIATOR_API_KEY_PROD=dc90da85-ca03-45fe-b6a5-9469f86ec88b
+# VIATOR API
+VIATOR_API_URL_TEST = os.getenv("VIATOR_API_URL_TEST")
+VIATOR_API_KEY_TEST = os.getenv("VIATOR_API_KEY_TEST")
+VIATOR_API_URL_PROD = os.getenv("VIATOR_API_URL_PROD")
+VIATOR_API_KEY_PROD = os.getenv("VIATOR_API_KEY_PROD")
+VIATOR_API_URL = VIATOR_API_URL_PROD
+VIATOR_API_KEY = VIATOR_API_KEY_PROD

@@ -199,4 +199,3 @@ class SignUpFynderAnswer(models.Model):
     fynder = models.ForeignKey(Fynder, on_delete=models.CASCADE)
     answer = models.ForeignKey(SignUpAnswer, on_delete=models.CASCADE)
 
-

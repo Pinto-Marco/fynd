@@ -1,5 +1,12 @@
 from django.db import models
-from fynder.models import Fynder
+from fynder import models as fynder_models 
+from trip import models as trip_models
+import requests
+from django.conf import settings
+VIATOR_API_URL = settings.VIATOR_API_URL
+VIATOR_API_KEY = settings.VIATOR_API_KEY
+from . import viator_client
+
 
 class Activity(models.Model):
     ACTIVITY_TYPES = (
@@ -16,33 +23,15 @@ class Activity(models.Model):
         ('Spiaggia', 'Spiaggia'),
     )
 
-    GENERATION_CATEGORIES = (
-        ('Any', 'Any'),
-        ('Vacanza al Mare', 'Vacanza al Mare'),
-        ('Avventura in Montagna', 'Avventura in Montagna'),
-        ('City Break Culturale', 'City Break Culturale'),
-        ('City Break Locale', 'City Break Locale'),
-        ('Viaggio Notturno e di Divertimento', 'Viaggio Notturno e di Divertimento'),
-        ('Ritiro di Benessere in Natura', 'Ritiro di Benessere in Natura'),
-        ('Viaggio di Lusso', 'Viaggio di Lusso'),
-        ('Vacanza con Macchina', 'Vacanza con Macchina'),
-    )
+    # Fields from the API of Viator
+    productCode = models.CharField(max_length=255, null=True, blank=True)
 
-    name = models.CharField(max_length=255)
-    description = models.TextField()
+    name = models.CharField(max_length=255, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    activity_type = models.CharField(max_length=50, choices=ACTIVITY_TYPES)
-    generation_category = models.CharField(max_length=50, choices=GENERATION_CATEGORIES)
+    activity_type = models.CharField(max_length=50, choices=ACTIVITY_TYPES, null=True, blank=True)
+    generation_category = models.CharField(max_length=50, choices=trip_models.TripType.GENERATION_CATEGORIES, null=True, blank=True)
 
-    # Interest Categories (stored as percentages)
-    # interest_culture_heritage = models.FloatField(default=0.00, help_text="Interest level in Culture & Heritage (0-100)")
-    # interest_nature_outdoors = models.FloatField(default=0.00, help_text="Interest level in Nature & Outdoors (0-100)")
-    # interest_food_gastronomy = models.FloatField(default=0.00, help_text="Interest level in Food & Gastronomy (0-100)")
-    # interest_nightlife_party = models.FloatField(default=0.00, help_text="Interest level in Nightlife & Party (0-100)")
-    # interest_wellness_spa = models.FloatField(default=0.00, help_text="Interest level in Wellness & Spa (0-100)")
-    # interest_sport_adventure = models.FloatField(default=0.00, help_text="Interest level in Sport & Adventure (0-100)")
-    # interest_music_festivals = models.FloatField(default=0.00, help_text="Interest level in Music & Festivals (0-100)")
-    # interest_shopping_fashion = models.FloatField(default=0.00, help_text="Interest level in Shopping & Fashion (0-100)")
     # Interest Categories
     interest_culture_heritage = models.BooleanField(default=False)
     interest_nature_outdoors = models.BooleanField(default=False)
@@ -54,25 +43,30 @@ class Activity(models.Model):
     interest_shopping_fashion = models.BooleanField(default=False)
 
 
-    # Activity-specific fields
-    website = models.URLField(blank=True, null=True)
-    address = models.CharField(max_length=255, blank=True, null=True)
-    phone_number = models.CharField(max_length=20, blank=True, null=True)
-    email = models.EmailField(blank=True, null=True)
-    opening_hours = models.TextField(blank=True, null=True)
-    duration = models.DurationField(blank=True, null=True)
-    image = models.ImageField(upload_to='activity_images/', blank=True, null=True)
-    min_pax = models.PositiveIntegerField(blank=True, null=True)
-    max_pax = models.PositiveIntegerField(blank=True, null=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    # Activity-specific fields just for Activity created by other fynders and to be approved by the operator
+    # fynder_creator = models.ForeignKey(fynder_models.Fynder, on_delete=models.CASCADE,  null=True, blank=True)
+    # fynder_approver = models.ForeignKey(fynder_models.Fynder, on_delete=models.CASCADE, null=True, blank=True)
+    # website = models.URLField(blank=True, null=True)
+    # address = models.CharField(max_length=255, blank=True, null=True)
+    # phone_number = models.CharField(max_length=20, blank=True, null=True)
+    # email = models.EmailField(blank=True, null=True)
+    # opening_hours = models.TextField(blank=True, null=True)
+    # duration = models.DurationField(blank=True, null=True)
+    # image = models.ImageField(upload_to='activity_images/', blank=True, null=True)
+    # min_pax = models.PositiveIntegerField(blank=True, null=True)
+    # max_pax = models.PositiveIntegerField(blank=True, null=True)
+    # price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
 
 
     def __str__(self):
         return self.name
 
+    def fetch_viator_product_code(self):
+        return viator_client.fetch_viator_product_code(self.productCode)
+
 
 class BookingSearch(models.Model):
-    fynder = models.ForeignKey(Fynder, on_delete=models.CASCADE)
+    fynder = models.ForeignKey(fynder_models.Fynder, on_delete=models.CASCADE)
     # Required fields
     checkin = models.DateField()
     checkout = models.DateField()
@@ -143,7 +137,7 @@ class BookingSearch(models.Model):
 
 
 class SavedAccommodation(models.Model):
-    fynder = models.ForeignKey(Fynder, on_delete=models.CASCADE)
+    fynder = models.ForeignKey(fynder_models.Fynder, on_delete=models.CASCADE)
     booking_id = models.IntegerField()
     search = models.ForeignKey(BookingSearch, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)

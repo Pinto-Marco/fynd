@@ -50,3 +50,44 @@ docker run -p 80:8000 myapp
 
 
 
+
+
+
+
+{
+  "filtering": {
+    "destination": "732",
+    "tags": [
+      "<integer>",
+      "<integer>"
+    ],
+    "flags": [
+      "SPECIAL_OFFER",
+      "<string>"
+    ],
+    "confirmationType": "<string>",
+    "rating": {
+      "from": "<integer>",
+      "to": "<integer>"
+    },
+    "durationInMinutes": {
+      "from": "<integer>",
+      "to": "<integer>"
+    },
+    "includeAutomaticTranslations": true,
+    "attractionId": "<integer>",
+    "lowestPrice": "<number>",
+    "highestPrice": "<number>",
+    "startDate": "<date>",
+    "endDate": "<date>"
+  },
+  "currency": "EUR",
+  "sorting": {
+    "sort": "TRAVELER_RATING",
+    "order": "DESCENDING"
+  },
+  "pagination": {
+    "start": 1,
+    "count": 10
+  }
+}

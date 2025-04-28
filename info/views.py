@@ -5,6 +5,10 @@ from .booking_client import BookingAPIClient
 from .models import BookingSearch, SavedAccommodation
 from .serializers import BookingSearchSerializer, SavedAccommodationSerializer
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from . import viator_client
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+
 
 class AccommodationViewSet(viewsets.ViewSet):
     booking_client = BookingAPIClient()
@@ -115,5 +119,76 @@ class AccommodationViewSet(viewsets.ViewSet):
         except Exception as e:
             return Response(
                 {"error": str(e)}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class ViatorProductCodeView(APIView):
+    permissions_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="Get Viator Product Code",
+        description="Get the Viator product code for a specific accommodation",
+        responses={200: dict}
+    )
+    def get(self, request, product_code = None):
+        try:
+            results = viator_client.fetch_viator_product_code(product_code)
+            return Response(results, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+class ViatorProductsTagsView(APIView):
+    permissions_classes = [IsAuthenticated]
+    @extend_schema(
+        summary="Get Viator Products Tags",
+        description="Get the Viator products tags for a specific accommodation",
+        responses={200: dict}
+    )
+    def get(self, request, product_code = None):
+        try:
+            results = viator_client.fetch_viator_products_tags()
+            return Response(results, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+class ViatorProductSearchView(APIView):
+    permissions_classes = [IsAuthenticated]
+    @extend_schema(
+        summary="Get Viator Products Search",
+        description="Get the Viator products search for a specific accommodation",
+        responses={200: dict}
+    )
+    def get(self, request, product_code = None):
+        try:
+            # TODO add query params
+            results = viator_client.fetch_viator_products_search()
+            return Response(results, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+class ViatorAttractionIdView(APIView):
+    permissions_classes = [IsAuthenticated]
+    @extend_schema(
+        summary="Get Viator Attraction Id",
+        description="Get the Viator attraction id for a specific attraction",
+        responses={200: dict}
+    )
+    def get(self, request, attraction_id = None):
+        try:
+            results = viator_client.fetch_viator_attractions_id(attraction_id)
+            return Response(results, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )

@@ -11,7 +11,6 @@ from rest_framework import generics, permissions
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from dj_rest_auth.registration.views import RegisterView
 from drf_spectacular.utils import extend_schema
-from . import serializers as fynder_serializers
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView

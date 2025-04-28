@@ -36,4 +36,5 @@ urlpatterns = [
     # fynder app urls
     path('api/fynder/', include('fynder.urls')),
     path('api/info/', include('info.urls')),
+    path('api/fynder/trip/', include('trip.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
