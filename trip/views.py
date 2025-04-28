@@ -23,12 +23,28 @@ class TripQuestionListView(APIView):
         return Response(serializer.data)
 
 class TripQuestionAnswerView(APIView):
-    # serializer_class = trip_serializers.TripQuestionAnswerSerializer
+    serializer_class = trip_serializers.TripQuestionAnswerSerializer
     permission_classes = [IsAuthenticated]
     http_method_names = ["patch"]
 
     @extend_schema(
-        # responses={200: trip_serializers.TripQuestionAnswerSerializer(many=True)}
+        request=trip_serializers.TripQuestionAnswerSerializer,
+        responses={200: {"message": "Answer updated successfully"}}
     )
-    def patch(self, request, format=None):
-       pass
+    def patch(self, request, question_id, format=None):
+        serializer = self.serializer_class(
+            data=request.data,
+            context={'question_id': question_id, 'request': request}
+        )
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "Answer updated successfully"},
+                status=status.HTTP_200_OK
+            )
+        
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )

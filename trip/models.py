@@ -34,9 +34,9 @@ class Trip(models.Model):
 
     trip_pax_type = models.CharField(max_length=20, choices=TRIP_PAX_TYPE_CHOICES, default='singolo')
     location = models.CharField(max_length=200)
-    start_date = models.DateField()
-    end_date = models.DateField()
-    budget = models.DecimalField(max_digits=10, decimal_places=2)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    budget = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     trip_intensity = models.CharField(max_length=20, choices=TRIP_INTENSITY_CHOICES, default='medio')
 
     def get_fynders(self):
