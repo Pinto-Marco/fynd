@@ -199,3 +199,9 @@ class SignUpFynderAnswer(models.Model):
     fynder = models.ForeignKey(Fynder, on_delete=models.CASCADE)
     answer = models.ForeignKey(SignUpAnswer, on_delete=models.CASCADE)
 
+
+class Friendship(models.Model):
+    fynder_1 = models.ForeignKey(Fynder, on_delete=models.CASCADE, related_name='fynder_1')
+    friend_2 = models.ForeignKey(Fynder, on_delete=models.CASCADE, related_name='fynder_2')
+    def __str__(self):
+        return f"{self.fynder_1.username} - {self.fynder_2.username}"

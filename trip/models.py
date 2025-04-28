@@ -48,7 +48,6 @@ class Trip(models.Model):
         return [trip_type.generation_category for trip_type in trip_types]
 
 
-
 class TripType(models.Model):
 
     GENERATION_CATEGORIES = (
