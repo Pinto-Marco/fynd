@@ -22,13 +22,13 @@ class TripQuestionListView(APIView):
         serializer = trip_serializers.TripQuestionSerializer(questions, many=True)
         return Response(serializer.data)
 
-class TripQuestionAnswerView(APIView):
-    serializer_class = trip_serializers.TripQuestionAnswerSerializer
+class TripFynderAnswerView(APIView):
+    serializer_class = trip_serializers.TripFynderAnswerSerializer
     permission_classes = [IsAuthenticated]
     http_method_names = ["patch"]
 
     @extend_schema(
-        request=trip_serializers.TripQuestionAnswerSerializer,
+        request=trip_serializers.TripFynderAnswerSerializer,
         responses={200: {"message": "Answer updated successfully"}}
     )
     def patch(self, request, question_id, format=None):

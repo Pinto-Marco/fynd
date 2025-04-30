@@ -16,6 +16,16 @@ class TripQuestion(models.Model):
     def __str__(self):
         return self.question_text
 
+    def get_answers(self):
+        answers = list(TripQuestionAnswer.objects.filter(question=self))
+        if not answers:
+            return []
+        return [answer.answer for answer in answers]
+
+class TripQuestionAnswer(models.Model):
+    question = models.ForeignKey('TripQuestion', on_delete=models.CASCADE)
+    answer = models.CharField(max_length=200)
+
 class Trip(models.Model):
 
     TRIP_PAX_TYPE_CHOICES = (
@@ -29,8 +39,14 @@ class Trip(models.Model):
         ('medio', 'medio'),
         ('tanto', 'tanto')
     )
+    TRIP_STATUS_CHOICES = (
+        ('pending', 'pending'),
+        ('active', 'active'),
+        ('completed', 'completed'),
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
+    status = models.CharField(max_length=20, choices=TRIP_STATUS_CHOICES, default='pending')
 
     trip_pax_type = models.CharField(max_length=20, choices=TRIP_PAX_TYPE_CHOICES, default='singolo')
     location = models.CharField(max_length=200)
@@ -46,6 +62,11 @@ class Trip(models.Model):
     def get_trip_types(self):
         trip_types = TripType.objects.filter(trip=self)
         return [trip_type.generation_category for trip_type in trip_types]
+
+class TripFynderAnswer(models.Model):
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
+    question = models.ForeignKey(TripQuestion, on_delete=models.CASCADE)
+    answer = models.CharField(max_length=200)
 
 
 class TripType(models.Model):
@@ -67,3 +88,11 @@ class TripType(models.Model):
 class TripFynder(models.Model):
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
     fynder = models.ForeignKey(fynder_models.Fynder, on_delete=models.CASCADE)
+
+    def delete(self, *args, **kwargs):
+        # prendere tutti i trip_fynders con lo stesso trip, se non ci sono più, eliminare il trip
+        trip_fynders = TripFynder.objects.filter(trip=self.trip)
+        if len(trip_fynders) == 1:
+            self.trip.delete()
+        # eliminare il trip_fynder corrente
+        super().delete(*args, **kwargs)

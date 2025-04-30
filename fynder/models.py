@@ -24,6 +24,8 @@ class Fynder(AbstractUser):
     country_of_origin = models.CharField(max_length=100, blank=True, null=True)
     is_vegetarian = models.BooleanField(default=False)
     is_vegan = models.BooleanField(default=False)
+    # TODO user delete photos and create img_profile field
+    # img_profile = models.ImageField(upload_to='profile_images/', blank=True, null=True)
      # Interest Categories (stored as percentages)
     interest_culture_heritage = models.FloatField(default=0.00, help_text="Interest level in Culture & Heritage (0-100)")
     interest_nature_outdoors = models.FloatField(default=0.00, help_text="Interest level in Nature & Outdoors (0-100)")
@@ -54,6 +56,29 @@ class Fynder(AbstractUser):
         if answers:
             for answer in answers:
                 answer.delete()
+
+    def delete_data(self): 
+        from trips.models import TripFynder
+        all_trips = TripFynder.objects.filter(fynder=self)
+        all_food_preferences = FynderFoodPreference.objects.filter(fynder=self)
+        all_sign_up_answers = SignUpFynderAnswer.objects.filter(fynder=self)
+        all_friendship = Friendship.objects.filter(
+            models.Q(fynder_1=request.user, friend_2_id=friend_id) |
+            models.Q(fynder_1_id=friend_id, friend_2=request.user)
+        )
+        if all_trips:
+            for trip in all_trips:
+                trip.delete()
+        if all_food_preferences:
+            for food_preference in all_food_preferences:
+                food_preference.delete()
+        if all_sign_up_answers:
+            for sign_up_answer in all_sign_up_answers:
+                sign_up_answer.delete()
+        if all_friendship:
+            for friendship in all_friendship:
+                friendship.delete()
+        return True
 
     def set_calculate_interest(self):
         total_interest_culture_heritage = 0.0
