@@ -97,6 +97,37 @@ class CustomTokenRefreshView(TokenRefreshView):
             "refresh": refresh  # Includi anche il refresh token
         })
 
+class DeleteDataView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    @extend_schema(
+        summary="Delete User Data",
+        description="Deletes the user's data and associated files.",
+    )
+    def delete(self, request, *args, **kwargs):
+        fynder = fynder_models.Fynder(request.user)
+        is_delete = fynder.delete_data()
+        if is_delete:
+            return Response({"message": "User data deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"message": "User data not deleted"}, status=status.HTTP_400_BAD_REQUEST)
+        
+class DeleteAccountView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    @extend_schema(
+        summary="Delete User Account",
+        description="Deletes the user's account and associated files.",
+    )
+    def delete(self, request, *args, **kwargs):
+        fynder = fynder_models.Fynder(request.user)
+        is_delete = fynder.delete_data()
+        if is_delete:
+            fynder.delete()
+            return Response({"message": "User account deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"message": "User account not deleted"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 class UserUpdateView(generics.UpdateAPIView):
     serializer_class = fynder_serializers.UserUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]

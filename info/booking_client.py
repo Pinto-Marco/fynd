@@ -122,3 +122,8 @@ class BookingAPIClient:
         }
         response = requests.post(url, headers=self._get_headers(), json=payload)
         return response.json()
+
+
+# curl --request POST 'https://demandapi-sandbox.booking.com/3.1/accommodations/search' \
+# --header 'X-Affiliate-Id: 123456'\
+# --header 'Authorization: Bearer xyz.........xyz'\

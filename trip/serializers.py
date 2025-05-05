@@ -3,12 +3,19 @@ from trip import models as trip_models
 
 
 class TripQuestionSerializer(serializers.ModelSerializer):
+    answers = serializers.SerializerMethodField()
+
     class Meta:
         model = trip_models.TripQuestion
-        fields = '__all__'
+        fields =  ['id', 'question_text', 'question_type', 'answers']
 
-class TripQuestionAnswerSerializer(serializers.Serializer):
+    def get_answers(self, obj):
+        answers = obj.get_answers()
+        return [answer.answer for answer in answers]
+
+class TripFynderAnswerSerializer(serializers.Serializer):
     answer = serializers.CharField()
+    trip_id = serializers.IntegerField()
 
     # class Meta:
     #     model = TripQuestion
@@ -38,7 +45,8 @@ class TripQuestionAnswerSerializer(serializers.Serializer):
             try:
                 float(data['answer'])
             except ValueError:
-                raise serializers.ValidationError("Budget must be a number")
+                raise serializers.ValidationError("Budget must be a number")     
+                
 
         data['question'] = question
         return data
@@ -47,18 +55,16 @@ class TripQuestionAnswerSerializer(serializers.Serializer):
         user = self.context['request'].user
         question = self.validated_data['question']
         answer = self.validated_data['answer']
+        trip_id = self.validated_data['trip_id']
 
         # Get or create Trip for the current user
-        trip_fynder = trip_models.TripFynder.objects.filter(
-            fynder=user
-        ).order_by('-trip__created_at').first()
-
-        if not trip_fynder:
+        if trip_id is None:
             trip = trip_models.Trip.objects.create()
-            trip_fynder = trip_models.TripFynder.objects.create(
-                trip=trip,
-                fynder=user
-            )
+            trip_id = trip.id
+            trip_fynder = trip_models.TripFynder.objects.create(trip=trip, fynder=user)
+        else:
+            trip = trip_models.Trip.objects.get(id=trip_id)
+            trip_fynder = trip_models.TripFynder.objects.get(trip=trip, fynder=user)
 
         # Update Trip based on question type
         trip = trip_fynder.trip
@@ -76,6 +82,14 @@ class TripQuestionAnswerSerializer(serializers.Serializer):
             trip.trip_intensity = answer
 
         trip.save()
+
+        # Create TripQuestionAnswer
+        trip_question_answer = trip_models.TripFynderAnswer.objects.create(
+            trip=trip,
+            question=question,
+            answer=answer
+        )
+
         return trip
 
 
