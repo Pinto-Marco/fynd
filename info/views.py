@@ -201,8 +201,8 @@ class ViatorFreeTextSearchView(APIView):
     )
     def post(self, request):
         try:
-            # TODO add query params
-            results = viator_client.fetch_viator_free_text_search()
+            body = request.data
+            results = viator_client.fetch_viator_free_text_search(body)
             return Response(results, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(
@@ -219,8 +219,8 @@ class ViatorLocationsBulkView(APIView):
     )
     def post(self, request):
         try:
-            # TODO add query params
-            results = viator_client.fetch_viator_locations_bulk()
+            body = request.data
+            results = viator_client.fetch_viator_locations_bulk(body)
             return Response(results, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(
@@ -237,8 +237,8 @@ class ViatorExchangeRatesView(APIView):
     )
     def post(self, request):
         try:
-            # TODO add query params
-            results = viator_client.fetch_viator_exchange_rates()
+            body = request.data
+            results = viator_client.fetch_viator_exchange_rates(body)
             return Response(results, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(
@@ -256,8 +256,8 @@ class ViatorProductSearchView(APIView):
     )
     def post(self, request, product_code = None):
         try:
-            # TODO add query params
-            results = viator_client.fetch_viator_products_search()
+            body = request.data
+            results = viator_client.fetch_viator_products_search(body)
             return Response(results, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(
@@ -291,8 +291,8 @@ class ViatorAttractionSearchView(APIView):
     )
     def post(self, request):
         try:
-            # TODO add query params
-            results = viator_client.fetch_viator_attractions_search()
+            body = request.data
+            results = viator_client.fetch_viator_attractions_search(body)
             return Response(results, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(
