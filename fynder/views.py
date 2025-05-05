@@ -72,10 +72,13 @@ class CustomRegisterView(RegisterView):
 
     @extend_schema(summary="User Registration", description="Registers a new user and returns authentication tokens.")
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()  # RIMOSSO `request`
-        return Response(fynder_serializers.RegisterSerializer(user).data, status=status.HTTP_201_CREATED)
+        try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.save()  # RIMOSSO `request`
+            return Response(fynder_serializers.RegisterSerializer(user).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
