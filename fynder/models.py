@@ -168,6 +168,7 @@ class TemporaryCode(models.Model):
 class SignUpQuestion(models.Model):
     question_text = models.CharField(max_length=200)
     weight = models.FloatField(default=1.0)
+    max_number_of_answers = models.IntegerField(default=4)
 
     def __str__(self):
         return self.question_text
@@ -199,3 +200,8 @@ class SignUpFynderAnswer(models.Model):
     answer = models.ForeignKey(SignUpAnswer, on_delete=models.CASCADE)
 
 
+class Friendship(models.Model):
+    fynder_1 = models.ForeignKey(Fynder, on_delete=models.CASCADE, related_name='fynder_1')
+    friend_2 = models.ForeignKey(Fynder, on_delete=models.CASCADE, related_name='fynder_2')
+    def __str__(self):
+        return f"{self.fynder_1.username} - {self.fynder_2.username}"

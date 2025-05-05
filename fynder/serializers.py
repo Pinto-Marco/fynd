@@ -89,11 +89,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class PossibleSignUpQuestionAnswerSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     question_text = serializers.CharField()
+    max_number_of_answers = serializers.IntegerField()
     answers = serializers.SerializerMethodField()
 
     class Meta:
         model = fynder_models.SignUpQuestion
-        fields = ('id', 'question_text', 'answers')
+        fields = ('id', 'question_text', 'max_number_of_answers', 'answers')
 
     def get_answers(self, obj):
         answers = obj.get_all_answers()
@@ -117,9 +118,10 @@ class SignUpFynderAnswerSerializer(serializers.ModelSerializer):
         if not question:
             raise serializers.ValidationError("Invalid question ID")
 
+        max_number_of_answers = question.max_number_of_answers
         answers_count = len(answers)
-        if answers_count < 1 or answers_count > 4:
-            raise serializers.ValidationError("Answers count must be between 1 and 4")
+        if answers_count < 1 or answers_count > max_number_of_answers:
+            raise serializers.ValidationError("Answers count must be between 1 and ".format(max_number_of_answers))
         for answer_id in answers:
             answer = fynder_models.SignUpAnswer.objects.filter(id=answer_id).first()
             if not answer:

@@ -11,7 +11,6 @@ from rest_framework import generics, permissions
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from dj_rest_auth.registration.views import RegisterView
 from drf_spectacular.utils import extend_schema
-from . import serializers as fynder_serializers
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -324,4 +323,69 @@ class FynderSignUpQuestionAnswerView(APIView):
         answers = fynder_models.SignUpFynderAnswer.objects.filter(fynder=fynder).order_by('answer__question__id').distinct('answer__question__id')
         serializer = fynder_serializers.GetSignUpFynderAnswerSerializer(answers, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+        
+class FriendProfileView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = fynder_serializers.UserProfileSerializer
+    @extend_schema(
+        summary="Friend Profile",
+        description="Retrieves the profile of a friend.",
+    )
+    def get(self, request, friend_id):
+        # Ottieni l'ID dell'utente corrente
+        user_id = request.user.id
+        # Verifica se l'utente corrente è un amico dell'utente specificato
+        friendship = fynder_models.Friendship.objects.filter(
+            models.Q(fynder_1=request.user, friend_2_id=friend_id) |
+            models.Q(fynder_1_id=friend_id, friend_2=request.user)
+        ).first()
+        if not friendship:
+            return Response({"detail": "Non sei un amico di questo utente."}, status=status.HTTP_403_FORBIDDEN)
+
+        # Get friend from friendship
+        friend = friendship.friend_2 if friendship.fynder_1 == request.user else friendship.fynder_1
+        serializer = self.serializer_class(friend)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class AddFriendView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    @extend_schema(
+        summary="Add Friend",
+        description="Adds a friend to the logged-in user's friend list.",
+    )
+    def post(self, request, friend_id):
+        # Ottieni l'ID dell'utente corrente
+        user_id = request.user.id
+        # Verifica se l'utente corrente è già un amico dell'utente specificato
+        if user_id == friend_id:
+            return Response({"detail": "Non puoi aggiungerti come amico."}, status=status.HTTP_400_BAD_REQUEST)
+        friendship = fynder_models.Friendship.objects.filter(
+            models.Q(fynder_1=request.user, friend_2_id=friend_id) |
+            models.Q(fynder_1_id=friend_id, friend_2=request.user)
+        ).first()
+        if friendship:
+            return Response({"detail": "Sei già un amico di questo utente."}, status=status.HTTP_400_BAD_REQUEST)
+        # Crea una nuova relazione di amicizia
+        new_friendship = fynder_models.Friendship.objects.create(fynder_1=request.user, friend_2_id=friend_id)
+        return Response({"detail": "Amicizia aggiunta con successo."}, status=status.HTTP_201_CREATED)
+
+    # delete friendship
+    @extend_schema(
+        summary="Remove Friend",
+        description="Removes a friend from the logged-in user's friend list.",
+    )
+    def delete(self, request, friend_id):
+        # Ottieni l'ID dell'utente corrente
+        user_id = request.user.id
+        # Verifica se l'utente corrente è già un amico dell'utente specificato
+        friendship = fynder_models.Friendship.objects.filter(
+            models.Q(fynder_1=request.user, friend_2_id=friend_id) |
+            models.Q(fynder_1_id=friend_id, friend_2=request.user)
+        ).first()
+        if not friendship:
+            return Response({"detail": "Non sei un amico di questo utente."}, status=status.HTTP_400_BAD_REQUEST)
+        # Elimina la relazione di amicizia
+        friendship.delete()
+        return Response({"detail": "Amicizia rimossa con successo."}, status=status.HTTP_200_OK)
         

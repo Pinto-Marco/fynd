@@ -35,4 +35,6 @@ urlpatterns = [
     path('api/dj-rest-auth/apple/', fynder_views.AppleLogin.as_view(), name='apple-login'),
     # fynder app urls
     path('api/fynder/', include('fynder.urls')),
+    path('api/info/', include('info.urls')),
+    path('api/fynder/trip/', include('trip.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

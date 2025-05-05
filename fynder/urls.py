@@ -13,4 +13,6 @@ urlpatterns = [
     path("possible-food-preferences/", views.PossibleFoodPreferencesView.as_view(), name="possible-food-preferences"),
     path('possible-sign-up-question-answer/', views.PossibleSignUpQuestionAnswerView.as_view(), name='possible-sign-up-question-answer'),
     path('fynder-sign-up-question-answer/', views.FynderSignUpQuestionAnswerView.as_view(), name='fynder-sign-up-question-answer'),
+    path('profile/friend/', views.AddFriendView.as_view(), name='add-friend'),
+    path('profile/friend/<int:friend_id>', views.FriendProfileView.as_view(), name='friend-detail-delete'),
 ]
