@@ -11,11 +11,12 @@ class TripQuestionSerializer(serializers.ModelSerializer):
 
     def get_answers(self, obj):
         answers = obj.get_answers()
-        return [answer.answer for answer in answers]
+        return [answer for answer in answers]
+
 
 class TripFynderAnswerSerializer(serializers.Serializer):
     answer = serializers.CharField()
-    trip_id = serializers.IntegerField()
+    trip_id = serializers.IntegerField(required=False)
 
     # class Meta:
     #     model = TripQuestion
@@ -55,7 +56,7 @@ class TripFynderAnswerSerializer(serializers.Serializer):
         user = self.context['request'].user
         question = self.validated_data['question']
         answer = self.validated_data['answer']
-        trip_id = self.validated_data['trip_id']
+        trip_id = self.validated_data['trip_id'] if 'trip_id' in self.validated_data else None
 
         # Get or create Trip for the current user
         if trip_id is None:
@@ -92,6 +93,78 @@ class TripFynderAnswerSerializer(serializers.Serializer):
 
         return trip
 
+class TripQuestionAnswerItemSerializer(serializers.Serializer):
+    question_id = serializers.IntegerField()
+    answer = serializers.CharField()
 
+class TripFynderAnswerAllTogetherSerializer(serializers.Serializer):
+    answers = TripQuestionAnswerItemSerializer(many=True)
 
-    
+    def validate(self, data):
+        for answer_data in data['answers']:
+            try:
+                question = trip_models.TripQuestion.objects.get(id=answer_data['question_id'])
+            except trip_models.TripQuestion.DoesNotExist:
+                raise serializers.ValidationError(f"Question {answer_data['question_id']} not found")
+
+            if question.question_type == 'pax':
+                if answer_data['answer'] not in dict(trip_models.Trip.TRIP_PAX_TYPE_CHOICES):
+                    raise serializers.ValidationError(f"Invalid pax type for question {question.id}")
+            elif question.question_type == 'intensity':
+                if answer_data['answer'] not in dict(trip_models.Trip.TRIP_INTENSITY_CHOICES):
+                    raise serializers.ValidationError(f"Invalid intensity level for question {question.id}")
+            elif question.question_type == 'when':
+                try:
+                    start_date, end_date = answer_data['answer'].split(',')
+                    datetime.strptime(start_date.strip(), '%Y-%m-%d')
+                    datetime.strptime(end_date.strip(), '%Y-%m-%d')
+                except (ValueError, IndexError):
+                    raise serializers.ValidationError(f"Invalid date format for question {question.id}. Use YYYY-MM-DD,YYYY-MM-DD")
+            elif question.question_type == 'budget':
+                try:
+                    float(answer_data['answer'])
+                except ValueError:
+                    raise serializers.ValidationError(f"Budget must be a number for question {question.id}")
+
+            answer_data['question'] = question
+
+        return data
+
+    def save(self, **kwargs):
+        user = self.context['request'].user
+        
+        # Create new Trip and TripFynder
+        trip = trip_models.Trip.objects.create()
+        trip_fynder = trip_models.TripFynder.objects.create(
+            trip=trip,
+            fynder=user
+        )
+
+        # Process each answer
+        for answer_data in self.validated_data['answers']:
+            question = answer_data['question']
+            answer = answer_data['answer']
+
+            # Update Trip based on question type
+            if question.question_type == 'pax':
+                trip.trip_pax_type = answer
+            elif question.question_type == 'where':
+                trip.location = answer
+            elif question.question_type == 'when':
+                start_date, end_date = answer.split(',')
+                trip.start_date = start_date.strip()
+                trip.end_date = end_date.strip()
+            elif question.question_type == 'budget':
+                trip.budget = float(answer)
+            elif question.question_type == 'intensity':
+                trip.trip_intensity = answer
+
+            # Create TripQuestionAnswer
+            trip_models.TripFynderAnswer.objects.create(
+                trip=trip,
+                question=question,
+                answer=answer
+            )
+
+        trip.save()
+        return trip

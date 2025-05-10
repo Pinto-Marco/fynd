@@ -22,6 +22,30 @@ class TripQuestionListView(APIView):
         serializer = trip_serializers.TripQuestionSerializer(questions, many=True)
         return Response(serializer.data)
 
+class TripQuestionPaxView(APIView):
+    serializer_class = trip_serializers.TripQuestionSerializer
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        responses={200: trip_serializers.TripQuestionSerializer(many=True)}
+    )
+    def get(self, request, format=None):
+        question = trip_models.TripQuestion.objects.filter(question_type="pax").first()
+        serializer = trip_serializers.TripQuestionSerializer(question)
+        return Response(serializer.data)
+
+class TripQuestionIntesityView(APIView):
+    serializer_class = trip_serializers.TripQuestionSerializer
+    permission_classes = [IsAuthenticated]
+    @extend_schema(
+        responses={200: trip_serializers.TripQuestionSerializer(many=True)}
+    )
+    def get(self, request, format=None):
+        question = trip_models.TripQuestion.objects.filter(question_type="intensity").first()
+        serializer = trip_serializers.TripQuestionSerializer(question)
+        return Response(serializer.data)
+
+
 class TripFynderAnswerView(APIView):
     serializer_class = trip_serializers.TripFynderAnswerSerializer
     permission_classes = [IsAuthenticated]
@@ -38,12 +62,35 @@ class TripFynderAnswerView(APIView):
         )
         
         if serializer.is_valid():
-            serializer.save()
+            trip = serializer.save()
             return Response(
-                {"message": "Answer updated successfully"},
+                {"id": trip.id },
                 status=status.HTTP_200_OK
             )
         
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+class TripFynderAnswerAllTogetherView(APIView):
+    serializer_class = trip_serializers.TripFynderAnswerAllTogetherSerializer
+    permission_classes = [IsAuthenticated]
+    http_method_names = ["post"]
+    @extend_schema(
+        request=trip_serializers.TripFynderAnswerAllTogetherSerializer,
+        responses={200: {"message": "Answers updated successfully"}}
+    )
+    def post(self, request, format=None):
+        serializer = trip_serializers.TripFynderAnswerAllTogetherSerializer(data=request.data, context={'request': request})
+
+        if serializer.is_valid():
+            trip = serializer.save()
+            return Response(
+                {"id": trip.id },
+                status=status.HTTP_200_OK
+            )
+
         return Response(
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
