@@ -6,6 +6,7 @@ class TripQuestion(models.Model):
     QUESTION_TYPE_CHOICES = (
         ('pax', 'pax'),
         ('where', 'where'),
+        ('from', 'from'),
         ('when', 'when'),
         ('budget', 'budget'),
         ('intensity', 'intensity'),
@@ -49,6 +50,7 @@ class Trip(models.Model):
     status = models.CharField(max_length=20, choices=TRIP_STATUS_CHOICES, default='pending')
 
     trip_pax_type = models.CharField(max_length=20, choices=TRIP_PAX_TYPE_CHOICES, default='singolo')
+    from_location = models.CharField(max_length=200)
     location = models.CharField(max_length=200)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
