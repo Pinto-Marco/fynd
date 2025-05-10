@@ -125,6 +125,14 @@ class TripFynderAnswerAllTogetherSerializer(serializers.Serializer):
                     float(answer_data['answer'])
                 except ValueError:
                     raise serializers.ValidationError(f"Budget must be a number for question {question.id}")
+            elif question.question_type == 'from':
+                # Validate from location if needed
+                if not answer_data['answer'].strip():
+                    raise serializers.ValidationError("From location cannot be empty")
+            elif question.question_type == 'where':
+                # Validate destination location if needed
+                if not answer_data['answer'].strip():
+                    raise serializers.ValidationError("Destination location cannot be empty")
 
             answer_data['question'] = question
 
@@ -150,6 +158,8 @@ class TripFynderAnswerAllTogetherSerializer(serializers.Serializer):
                 trip.trip_pax_type = answer
             elif question.question_type == 'where':
                 trip.location = answer
+            elif question.question_type == 'from':
+                trip.from_location = answer
             elif question.question_type == 'when':
                 start_date, end_date = answer.split(',')
                 trip.start_date = start_date.strip()
