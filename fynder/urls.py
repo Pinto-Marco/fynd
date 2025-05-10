@@ -5,8 +5,7 @@ urlpatterns = [
     path('register/', views.CustomRegisterView.as_view(), name='register'),
     path('login/', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('refresh/', views.CustomTokenRefreshView.as_view(), name='token_refresh'),
-    # TODO LOGOUT
-    # path('logout/', views.CustomTokenBlacklistView.as_view(), name='token_blacklist'),
+    path('logout/', views.CustomTokenBlacklistView.as_view(), name='token_blacklist'),
     path('delete-data/', views.DeleteDataView.as_view(), name='delete-data'),
     path('delete-account/', views.DeleteAccountView.as_view(), name='delete-account'),
     path("update/", views.UserUpdateView.as_view(), name="user-update"),

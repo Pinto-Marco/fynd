@@ -417,3 +417,64 @@ class AddFriendView(APIView):
         friendship.delete()
         return Response({"detail": "Amicizia rimossa con successo."}, status=status.HTTP_200_OK)
         
+
+class CustomTokenBlacklistView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        summary="Logout",
+        description="Blacklists the refresh token, effectively logging out the user",
+        request={
+            'application/json': {
+                'type': 'object',
+                'required': ['refresh'],
+                'properties': {
+                    'refresh': {
+                        'type': 'string',
+                        'description': 'The refresh token to blacklist'
+                    }
+                }
+            }
+        },
+        responses={
+            200: {
+                'type': 'object',
+                'properties': {
+                    'message': {
+                        'type': 'string',
+                        'example': 'Successfully logged out'
+                    }
+                }
+            },
+            400: {
+                'type': 'object',
+                'properties': {
+                    'error': {
+                        'type': 'string',
+                        'example': 'Invalid token'
+                    }
+                }
+            }
+        }
+    )
+    def post(self, request):
+        try:
+            refresh_token = request.data.get("refresh")
+            if not refresh_token:
+                return Response(
+                    {"error": "Refresh token is required"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            
+            return Response(
+                {"message": "Successfully logged out"}, 
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response(
+                {"error": "Invalid token"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
