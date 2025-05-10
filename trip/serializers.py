@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from trip import models as trip_models
+from fynder import models as fynder_models
 
 
 class TripQuestionSerializer(serializers.ModelSerializer):
@@ -62,7 +63,7 @@ class TripFynderAnswerSerializer(serializers.Serializer):
         if trip_id is None:
             trip = trip_models.Trip.objects.create()
             trip_id = trip.id
-            trip_fynder = trip_models.TripFynder.objects.create(trip=trip, fynder=user)
+            trip_fynder = trip_models.TripFynder.objects.create(trip=trip, fynder=user, is_owner=True)
         else:
             trip = trip_models.Trip.objects.get(id=trip_id)
             trip_fynder = trip_models.TripFynder.objects.get(trip=trip, fynder=user)
@@ -178,3 +179,30 @@ class TripFynderAnswerAllTogetherSerializer(serializers.Serializer):
 
         trip.save()
         return trip
+
+class AddFriendLinkToTripSerializer(serializers.Serializer):
+    trip_id = serializers.CharField()
+
+    def save(self, **kwargs):
+        fynder = self.context['request'].user
+        trip_id = self.validated_data.get("trip_id")
+        if not trip_id:
+            raise serializers.ValidationError("Trip ID is required")
+        try:
+            trip = trip_models.Trip.objects.get(id=trip_id)
+        except trip_models.Trip.DoesNotExist:
+            raise serializers.ValidationError("Trip not found")
+        is_owner = trip_models.TripFynder.objects.filter(trip=trip, fynder=fynder, is_owner=True).exists()
+        if is_owner:
+            raise serializers.ValidationError("You are the owner of this trip, you cannot add yourself to the trip")
+        fynders_already_in_trip = trip_models.TripFynder.objects.filter(trip=trip, fynder=fynder)
+        if fynders_already_in_trip.exists():
+            for fynder_already_in_trip in fynders_already_in_trip:
+                if fynder_models.Friendship.objects.filter(fynder_1=fynder, fynder_2=fynder_already_in_trip.fynder).exists() or fynder_models.Friendship.objects.filter(fynder_1=fynder_already_in_trip.fynder, fynder_2=fynder).exists():
+                    pass
+                else:
+                    fynder_models.Friendship.objects.create(fynder_1=fynder, fynder_2=fynder_already_in_trip.fynder)
+        
+        trip_fynder = trip_models.TripFynder.objects.create(trip=trip, fynder=fynder)
+        return trip
+        

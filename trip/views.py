@@ -7,6 +7,7 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 from trip import models as trip_models
 from trip import serializers as trip_serializers
+from fynder import serializers as fynder_serializers
 
 # Create your views here.
 
@@ -95,3 +96,17 @@ class TripFynderAnswerAllTogetherView(APIView):
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
         )
+
+class AddFriendLinkToTripView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = trip_serializers.AddFriendLinkToTripSerializer
+    @extend_schema(
+        summary="Add Friend Deep Link To Trip",
+        description="Adds a friend with the deep link to trip.",
+    )
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

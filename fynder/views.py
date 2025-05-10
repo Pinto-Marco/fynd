@@ -419,4 +419,79 @@ class AddFriendView(APIView):
         # Elimina la relazione di amicizia
         friendship.delete()
         return Response({"detail": "Amicizia rimossa con successo."}, status=status.HTTP_200_OK)
+
+class AddFriendLinkView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = fynder_serializers.AddFriendLinkSerializer
+    @extend_schema(
+        summary="Add Friend Deep Link",
+        description="Adds a friend with the deep link.",
+    )
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
+
+class CustomTokenBlacklistView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        summary="Logout",
+        description="Blacklists the refresh token, effectively logging out the user",
+        request={
+            'application/json': {
+                'type': 'object',
+                'required': ['refresh'],
+                'properties': {
+                    'refresh': {
+                        'type': 'string',
+                        'description': 'The refresh token to blacklist'
+                    }
+                }
+            }
+        },
+        responses={
+            200: {
+                'type': 'object',
+                'properties': {
+                    'message': {
+                        'type': 'string',
+                        'example': 'Successfully logged out'
+                    }
+                }
+            },
+            400: {
+                'type': 'object',
+                'properties': {
+                    'error': {
+                        'type': 'string',
+                        'example': 'Invalid token'
+                    }
+                }
+            }
+        }
+    )
+    def post(self, request):
+        try:
+            refresh_token = request.data.get("refresh")
+            if not refresh_token:
+                return Response(
+                    {"error": "Refresh token is required"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            
+            return Response(
+                {"message": "Successfully logged out"}, 
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response(
+                {"error": "Invalid token"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )

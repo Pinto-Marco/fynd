@@ -5,8 +5,7 @@ urlpatterns = [
     path('register/', views.CustomRegisterView.as_view(), name='register'),
     path('login/', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('refresh/', views.CustomTokenRefreshView.as_view(), name='token_refresh'),
-    # TODO LOGOUT
-    # path('logout/', views.CustomTokenBlacklistView.as_view(), name='token_blacklist'),
+    path('logout/', views.CustomTokenBlacklistView.as_view(), name='token_blacklist'),
     path('delete-data/', views.DeleteDataView.as_view(), name='delete-data'),
     path('delete-account/', views.DeleteAccountView.as_view(), name='delete-account'),
     path("update/", views.UserUpdateView.as_view(), name="user-update"),
@@ -18,5 +17,6 @@ urlpatterns = [
     path('possible-sign-up-question-answer/', views.PossibleSignUpQuestionAnswerView.as_view(), name='possible-sign-up-question-answer'),
     path('fynder-sign-up-question-answer/', views.FynderSignUpQuestionAnswerView.as_view(), name='fynder-sign-up-question-answer'),
     path('profile/friend/', views.AddFriendView.as_view(), name='add-friend'),
+    path('profile/friend/link', views.AddFriendLinkView.as_view(), name='add-friend-link'),
     path('profile/friend/<int:friend_id>', views.FriendProfileView.as_view(), name='friend-detail-delete'),
 ]

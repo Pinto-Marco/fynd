@@ -162,3 +162,22 @@ class GetSignUpFynderAnswerSerializer(serializers.ModelSerializer):
 
     def get_answers(self, obj):
         return [{'id': answer.id, 'answer_text': answer.answer_text} for answer in obj.fynder.get_all_sign_up_answers_by_question_id(obj.answer.question.id)]
+
+class AddFriendLinkSerializer(serializers.Serializer):
+    friend_id = serializers.CharField()
+
+    def save(self, **kwargs):
+        fynder = self.context['request'].user
+        friend_id = self.validated_data.get("friend_id")
+        if friend_id:
+            friend = User.objects.filter(id=friend_id).first()
+            if not friend:
+                raise serializers.ValidationError("Invalid friend ID")
+            if friend == fynder:
+                raise serializers.ValidationError("You cannot add yourself as a friend")
+            if fynder_models.Friendship.objects.filter(fynder_1=fynder, friend_2=friend).exists() or fynder_models.Friendship.objects.filter(fynder_1=friend, friend_2=fynder).exists():
+                raise serializers.ValidationError("You are already friends with this user")
+            else:
+                fynder_models.Friendship.objects.create(fynder_1=fynder, friend_2=friend)
+        return self.validated_data
+        
