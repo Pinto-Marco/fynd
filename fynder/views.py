@@ -416,6 +416,20 @@ class AddFriendView(APIView):
         # Elimina la relazione di amicizia
         friendship.delete()
         return Response({"detail": "Amicizia rimossa con successo."}, status=status.HTTP_200_OK)
+
+class AddFriendLinkView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = fynder_serializers.AddFriendLinkSerializer
+    @extend_schema(
+        summary="Add Friend Deep Link",
+        description="Adds a friend with the deep link.",
+    )
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
 class CustomTokenBlacklistView(APIView):

@@ -90,11 +90,18 @@ class TripType(models.Model):
 class TripFynder(models.Model):
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
     fynder = models.ForeignKey(fynder_models.Fynder, on_delete=models.CASCADE)
+    is_owner = models.BooleanField(default=False)
 
     def delete(self, *args, **kwargs):
         # prendere tutti i trip_fynders con lo stesso trip, se non ci sono più, eliminare il trip
         trip_fynders = TripFynder.objects.filter(trip=self.trip)
         if len(trip_fynders) == 1:
             self.trip.delete()
-        # eliminare il trip_fynder corrente
+        if self.is_owner:
+            # se il trip_fynder corrente è l'owner, impostare il primo trip_fynder come owner
+            trip_fynder = TripFynder.objects.filter(trip=self.trip).first()
+            if trip_fynder:
+                trip_fynder.is_owner = True
+                trip_fynder.save()
+
         super().delete(*args, **kwargs)
