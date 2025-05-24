@@ -165,6 +165,12 @@ class Fynder(AbstractUser):
 
         return self
 
+    def get_cards(self):
+        fynder_cards_collections = FynderCardsCollection.objects.filter(fynder=self)
+        if not fynder_cards_collections:
+            return []
+        return [fynder_cards_collection.card for fynder_cards_collection in fynder_cards_collections]
+
     
 class FynderFoodPreference(models.Model):
     FOOD_PREFERENCE_CHOICES = (
@@ -230,3 +236,10 @@ class Friendship(models.Model):
     friend_2 = models.ForeignKey(Fynder, on_delete=models.CASCADE, related_name='fynder_2')
     def __str__(self):
         return f"{self.fynder_1.username} - {self.fynder_2.username}"
+
+
+class FynderCardsCollection(models.Model):
+    from info import models as info_models
+    
+    fynder = models.ForeignKey(Fynder, on_delete=models.CASCADE)
+    card = models.ForeignKey(info_models.FynderBasicCard, on_delete=models.CASCADE)

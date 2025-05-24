@@ -19,4 +19,5 @@ urlpatterns = [
     path('profile/friend/', views.AddFriendView.as_view(), name='add-friend'),
     path('profile/friend/link', views.AddFriendLinkView.as_view(), name='add-friend-link'),
     path('profile/friend/<int:friend_id>', views.FriendProfileView.as_view(), name='friend-detail-delete'),
+    path('sign-up/basic-cards/', views.SignUpFynderBasicCardsView.as_view(), name='sign-up-basic-cards'),
 ]

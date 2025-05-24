@@ -64,6 +64,120 @@ class Activity(models.Model):
     def fetch_viator_product_code(self):
         return viator_client.fetch_viator_product_code(self.productCode)
 
+    def get_local(self):
+        local = Locale.objects.filter(activity_ref=self).first()
+        if local:
+            return local
+        else:
+            return None
+
+    def get_type(self):
+        if self.activity_type:
+            if self.activity_type == 'Cibo':
+                local = self.get_local()
+                if local:
+                    return local.service_type
+                else:
+                    return None
+            else:
+                return self.activity_type
+        else:
+            return None
+
+
+
+class Locale(models.Model):
+
+    LOCALE_TYPES = (
+        ('Ristorante', 'Ristorante'),
+        ('Street food', 'Street food'),
+        ('Cucino a casa', 'Cucino a casa'),
+        ('Bar caffetteria', 'Bar caffetteria'),
+        ('Disco', 'Disco'),
+        ('Pub', 'Pub'),
+        ('Coffe shop', 'Coffe shop'),
+    )
+    SERVICE_TYPES = (
+        ('Pasticceria', 'Pasticceria'),
+        ('Aperitivi', 'Aperitivi'),
+        ('Chioschi', 'Chioschi'),
+        ('Enoteche', 'Enoteche'),
+        ('Colazione', 'Colazione'),
+        ('Brunch', 'Brunch'),
+        ('Cena', 'Cena'),
+        ('Pranzo', 'Pranzo'),
+        ('Eventi', 'Eventi'),
+    )
+    CUISINE_TYPES = (
+        ('Italiana', 'Italiana'),
+        ('Cinese', 'Cinese'),
+        ('Giapponese', 'Giapponese'),
+        ('Indiana', 'Indiana'),
+        ('Americana', 'Americana'),
+        ('Araba', 'Araba'),
+        ('Mediterranea', 'Mediterranea'),
+        ('Messicana', 'Messicana'),
+        ('Pesce', 'Pesce'),
+        ('Fast food', 'Fast food'),
+        ('Pizzeria', 'Pizzeria'),
+    )
+
+    activity_ref = models.ForeignKey(Activity, on_delete=models.CASCADE, related_name='locale')
+    type = models.CharField(max_length=50, choices=LOCALE_TYPES, null=True, blank=True)
+    service_type = models.CharField(max_length=50, choices=SERVICE_TYPES, null=True, blank=True)
+    cuisine_type = models.CharField(max_length=50, choices=CUISINE_TYPES, null=True, blank=True)
+
+
+class FynderBasicCard(models.Model):
+    name = models.CharField(max_length=50)
+    img = models.ImageField(upload_to='cards/', null=True, blank=True)
+    description = models.TextField()
+    interest_culture_heritage = models.FloatField(default=0.00, help_text="Interest level in Culture & Heritage (0-100)")
+    interest_nature_outdoors = models.FloatField(default=0.00, help_text="Interest level in Nature & Outdoors (0-100)")
+    interest_food_gastronomy = models.FloatField(default=0.00, help_text="Interest level in Food & Gastronomy (0-100)")
+    interest_nightlife_party = models.FloatField(default=0.00, help_text="Interest level in Nightlife & Party (0-100)")
+    interest_wellness_spa = models.FloatField(default=0.00, help_text="Interest level in Wellness & Spa (0-100)")
+    interest_sport_adventure = models.FloatField(default=0.00, help_text="Interest level in Sport & Adventure (0-100)")
+    interest_music_festivals = models.FloatField(default=0.00, help_text="Interest level in Music & Festivals (0-100)")
+    interest_shopping_fashion = models.FloatField(default=0.00, help_text="Interest level in Shopping & Fashion (0-100)")
+
+    def get_tags(self):
+        tags = FynderTag.objects.filter(fynder_card=self)
+        if tags:
+            return [tag.tag for tag in tags]
+        else:
+            return []
+
+    def get_schedules(self):
+        schedules = Schedule.objects.filter(fynder_card=self).order_by('start_date')
+        if schedules:
+            return schedules
+        else:
+            return []
+
+class Tag(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.TextField(null=True, blank=True)
+
+class FynderTag(models.Model):
+    fynder_card = models.ForeignKey(FynderBasicCard, on_delete=models.CASCADE)
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    
+class Schedule(models.Model):
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+    type = models.CharField(max_length=50)
+    fynder_card = models.ForeignKey(FynderBasicCard, on_delete=models.CASCADE)
+
+
+
+
+
+
+
+
+
+
 
 class BookingSearch(models.Model):
     fynder = models.ForeignKey(fynder_models.Fynder, on_delete=models.CASCADE)
@@ -151,3 +265,4 @@ class SavedAccommodation(models.Model):
     def __str__(self):
         return f"{self.name} - {self.price} {self.currency}"
     
+
