@@ -8,6 +8,8 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExampl
 from . import viator_client
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from . import models as info_models
+from. import serializers as info_serializers
 
 
 class AccommodationViewSet(viewsets.ViewSet):
@@ -299,3 +301,17 @@ class ViatorAttractionSearchView(APIView):
                 {"error": str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+
+class FynderBasicCardsView(APIView):
+    permissions_classes = [IsAuthenticated]
+    @extend_schema(
+        summary="Get Fynder Basic Cards",
+        description="Get the Fynder basic cards",
+        responses={200: dict}
+    )
+    def get(self, request):
+        fynder_basic_cards = info_models.FynderBasicCard.objects.all()
+        serializer = info_serializers.FynderBasicCardsSerializer(fynder_basic_cards, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

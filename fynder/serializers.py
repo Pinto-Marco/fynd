@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from . import models as fynder_models 
+from info import models as info_models
+from info import serializers as info_serializers
 
 User = get_user_model()
 
@@ -76,6 +78,7 @@ class ChangePasswordNewSerializer(serializers.Serializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     food_preferences = serializers.SerializerMethodField()
+    cards = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -84,6 +87,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def get_food_preferences(self, obj):
         food_preferences = fynder_models.FynderFoodPreference.objects.filter(fynder=obj)
         return [food_preference.label for food_preference in food_preferences]
+
+    def get_cards(self, obj):
+        cards = obj.get_cards()
+        return info_serializers.FynderBasicCardsSerializer(cards, many=True).data
 
 
 class PossibleSignUpQuestionAnswerSerializer(serializers.Serializer):
@@ -181,3 +188,22 @@ class AddFriendLinkSerializer(serializers.Serializer):
                 fynder_models.Friendship.objects.create(fynder_1=fynder, friend_2=friend)
         return self.validated_data
         
+class SignUpFynderBasicCardsSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+
+    def create(self, validated_data):
+        fynder = self.context['request'].user
+        basic_card_id = validated_data.get("id")
+        if basic_card_id:
+            basic_card = info_models.FynderBasicCard.objects.filter(id=basic_card_id).first()
+            if not basic_card:
+                raise serializers.ValidationError("Invalid basic card ID")
+            else:
+                new_fynder_card = fynder_models.FynderCardsCollection.objects.create(
+                    fynder=fynder,
+                    card=basic_card
+                )
+                return new_fynder_card
+        return None
+
+            

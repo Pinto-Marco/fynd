@@ -54,6 +54,55 @@ docker run -p 80:8000 myapp
 
 
 
+
+
+Docker file Production
+# Usa un'immagine ufficiale di Python
+FROM python:3.11
+
+# Imposta la directory di lavoro
+WORKDIR /app
+
+# Copia i file di requirements
+COPY requirements.txt .
+
+# Installa le dipendenze
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copia il resto del codice
+COPY . .
+
+# Espone la porta su cui gira Django
+EXPOSE 8000
+
+# Comando per avviare Django
+# CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+# Comando di avvio
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "cocci.wsgi"][ec2-user@ip-172-31-30-8 cocci]$
+
+fine Docker file Production
+
+
+
+
+
+
+nginx configuration:
+sudo yum update -y
+sudo dnf update -y
+sudo dnf install nginx -y
+
+
+
+
+
+
+
+
+
+
+
 {
   "filtering": {
     "destination": "732",

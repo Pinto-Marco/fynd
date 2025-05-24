@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import BookingSearch, SavedAccommodation
+from . import models as info_models
 
 class BookingSearchSerializer(serializers.ModelSerializer):
     def validate(self, data):
@@ -37,3 +38,30 @@ class SavedAccommodationSerializer(serializers.ModelSerializer):
             'booking_id', 'search', 'name', 'price', 
             'currency', 'deep_link_url', 'main_photo_url', 'photos'
         ]
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = info_models.Tag
+        fields = ['id', 'name', 'description']
+
+class ScheduleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = info_models.Schedule
+        fields = ['id', 'start_date', 'end_date', 'type']
+
+class FynderBasicCardsSerializer(serializers.ModelSerializer):
+    # name = serializers.CharField(max_length=255)
+    # description = serializers.CharField(max_length=255)
+    tags = serializers.SerializerMethodField()
+    schedules = serializers.SerializerMethodField()
+
+    class Meta:
+        model = info_models.FynderBasicCard
+        fields = [ 'id', 'name', 'description', 'tags', 'schedules'] # 'img'
+
+    def get_tags(self, obj):
+        return TagSerializer(obj.get_tags(), many=True).data
+        
+
+    def get_schedules(self, obj):
+        return ScheduleSerializer(obj.get_schedules(), many=True).data

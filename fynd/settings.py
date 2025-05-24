@@ -250,6 +250,12 @@ STATICFILES_DIRS = [
 # Impostazione di STATIC_ROOT per quando esegui collectstatic
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+# Add these settings after STATIC_ROOT configuration
+
+# Media files (User uploaded files)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 from datetime import timedelta
 
 SIMPLE_JWT = {

@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 router = DefaultRouter()
-router.register(r'accommodations', views.AccommodationViewSet, basename='accommodation')
+# router.register(r'accommodations', views.AccommodationViewSet, basename='accommodation')
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -17,7 +17,12 @@ urlpatterns = [
     path('viator/v2/availability/schedules/<str:product_code>/', views.ViatorAvailabilitySchedulesView.as_view(), name='viator-availability-schedules'),
     path('viator/v2/attraction/search/', views.ViatorAttractionSearchView.as_view(), name='viator-attraction-search'),
     path('viator/v2/attraction/<str:attraction_id>/', views.ViatorAttractionIdView.as_view(), name='viator-attraction-detail'),
-    # implementare le destination
-    #
-    #
+    # path('booking/accommodation/search/', views.BookingAccommodationSearchView.as_view(), name='booking-accommodation-search'),
+    # path('booking/accommodation/availability/', views.BookingAccommodationAvailabilityView.as_view(), name='booking-accommodation-availability'),
+    # path('booking/order/preview/', views.BookingOrderPreviewView.as_view(), name='booking-order-preview'),
+    # path('booking/order/create/', views.BookingOrderCreateView.as_view(), name='booking-order-create'),
+    # path('booking/orders/cancel/', views.BookingOrderCancelView.as_view(), name='booking-order-cancel'),
+    # path('booking//orders/details/', views.BookingOrderDetailsView.as_view(), name='booking-order-details'),
+    path('fynder/basic-cards/', views.FynderBasicCardsView.as_view(), name='fynder-basic-cards'),
+    # path('fynder/tags/', views.TagsView.as_view(), name='fynder-tags'),
 ]

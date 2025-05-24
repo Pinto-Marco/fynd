@@ -1,3 +1,4 @@
+from re import M
 from django.core.files.storage import default_storage
 from django.conf import settings
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
@@ -495,3 +496,19 @@ class CustomTokenBlacklistView(APIView):
                 {"error": "Invalid token"}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+class SignUpFynderBasicCardsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = fynder_serializers.SignUpFynderBasicCardsSerializer
+    @extend_schema(
+        # la request è una lista di id 
+        request=fynder_serializers.SignUpFynderBasicCardsSerializer(many=True),
+        summary="Sign Up Basic Cards",
+        description="Adds basic cards to the logged-in user's basic cards list.",
+    )
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, many=True, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
