@@ -7,6 +7,6 @@ admin.site.register(customer_models.FynderFoodPreference)
 admin.site.register(customer_models.SignUpQuestion)
 admin.site.register(customer_models.SignUpAnswer)
 admin.site.register(customer_models.SignUpFynderAnswer)
-admin.site.register(customer_models.FynderCardsCollection)
+admin.site.register(customer_models.FynderTypesCollection)
 
 

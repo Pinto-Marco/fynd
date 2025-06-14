@@ -23,6 +23,6 @@ urlpatterns = [
     # path('booking/order/create/', views.BookingOrderCreateView.as_view(), name='booking-order-create'),
     # path('booking/orders/cancel/', views.BookingOrderCancelView.as_view(), name='booking-order-cancel'),
     # path('booking//orders/details/', views.BookingOrderDetailsView.as_view(), name='booking-order-details'),
-    path('fynder/basic-cards/', views.FynderBasicCardsView.as_view(), name='fynder-basic-cards'),
+    path('fynder/basic-types/', views.FynderBasicTypeView.as_view(), name='fynder-basic-types'),
     # path('fynder/tags/', views.TagsView.as_view(), name='fynder-tags'),
 ]
