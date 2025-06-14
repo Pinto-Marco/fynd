@@ -7,14 +7,34 @@ from info import serializers as info_serializers
 
 User = get_user_model()
 
+# class RegisterSerializer(serializers.ModelSerializer):
+#     password = serializers.CharField(write_only=True, min_length=8)
+    
+#     class Meta:
+#         model = User
+#         fields = ('id', 'email', 'username', 'first_name', 'last_name', 'password', 'gender')
+    
+#     def create(self, validated_data):
+#         user = User.objects.create_user(**validated_data)
+#         return user
+
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, min_length=8)
+    password = serializers.CharField(write_only=True, min_length=5, required=True)
+    email = serializers.EmailField(required=True)
     
     class Meta:
         model = User
         fields = ('id', 'email', 'username', 'first_name', 'last_name', 'password', 'gender')
+        extra_kwargs = {
+            'username': {'required': False},
+            'first_name': {'required': False},
+            'last_name': {'required': False},
+            'gender': {'required': False},
+        }
     
     def create(self, validated_data):
+        if 'username' not in validated_data or not validated_data['username']:
+            validated_data['username'] = validated_data['email']
         user = User.objects.create_user(**validated_data)
         return user
 
@@ -43,7 +63,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         model = User
         exclude = ('password', 'is_superuser', 'is_staff', 'last_login', 'is_active', 'date_joined', 'groups', 'user_permissions',
                    )
-        read_only_fields = ('interest_culture_heritage', 'interest_nature_outdoors', 'interest_food_gastronomy', 'interest_nightlife_party', 'interest_wellness_spa', 'interest_sport_adventure', 'interest_music_festivals', 'interest_shopping_fashion')
+        read_only_fields = ('interest_culture_heritage', 'interest_nature_outdoors', 'interest_food_gastronomy', 'interest_nightlife_party', 'interest_wellness_spa') # 'interest_sport_adventure', 'interest_music_festivals', 'interest_shopping_fashion'
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
@@ -78,7 +98,7 @@ class ChangePasswordNewSerializer(serializers.Serializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     food_preferences = serializers.SerializerMethodField()
-    cards = serializers.SerializerMethodField()
+    fynder_types = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -88,9 +108,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
         food_preferences = fynder_models.FynderFoodPreference.objects.filter(fynder=obj)
         return [food_preference.label for food_preference in food_preferences]
 
-    def get_cards(self, obj):
-        cards = obj.get_cards()
-        return info_serializers.FynderBasicCardsSerializer(cards, many=True).data
+    def get_fynder_types(self, obj):
+        basic_types = obj.get_fynder_types()
+        return info_serializers.FynderBasicTypeSerializer(basic_types, many=True).data
 
 
 class PossibleSignUpQuestionAnswerSerializer(serializers.Serializer):
@@ -188,22 +208,22 @@ class AddFriendLinkSerializer(serializers.Serializer):
                 fynder_models.Friendship.objects.create(fynder_1=fynder, friend_2=friend)
         return self.validated_data
         
-class SignUpFynderBasicCardsSerializer(serializers.Serializer):
+class SignUpFynderBasicTypesSerializer(serializers.Serializer):
     id = serializers.IntegerField()
 
     def create(self, validated_data):
         fynder = self.context['request'].user
-        basic_card_id = validated_data.get("id")
-        if basic_card_id:
-            basic_card = info_models.FynderBasicCard.objects.filter(id=basic_card_id).first()
-            if not basic_card:
-                raise serializers.ValidationError("Invalid basic card ID")
+        basic_type_id = validated_data.get("id")
+        if basic_type_id:
+            basic_type = info_models.FynderBasicType.objects.filter(id=basic_type_id).first()
+            if not basic_type:
+                raise serializers.ValidationError("Invalid basic type ID")
             else:
-                new_fynder_card = fynder_models.FynderCardsCollection.objects.create(
+                new_fynder_type = fynder_models.FynderTypesCollection.objects.create(
                     fynder=fynder,
-                    card=basic_card
+                    basic_type=basic_type
                 )
-                return new_fynder_card
+                return new_fynder_type
         return None
 
             

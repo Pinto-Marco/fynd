@@ -5,6 +5,7 @@
 ./wait_for_db.sh
 
 python manage.py migrate
+python manage.py loaddata fynd/fixtures/initial_data.json
 
 
 # Create The superuser

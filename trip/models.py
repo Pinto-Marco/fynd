@@ -1,3 +1,4 @@
+from logging import info
 from django.db import models
 from fynder import models as fynder_models
 
@@ -10,6 +11,7 @@ class TripQuestion(models.Model):
         ('when', 'when'),
         ('budget', 'budget'),
         ('intensity', 'intensity'),
+        ('fynder_basic_type', 'fynder_basic_type'),
     )
     question_text = models.CharField(max_length=200)
     question_type = models.CharField(max_length=20, choices=QUESTION_TYPE_CHOICES)
@@ -56,6 +58,9 @@ class Trip(models.Model):
     end_date = models.DateField(null=True, blank=True)
     budget = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     trip_intensity = models.CharField(max_length=20, choices=TRIP_INTENSITY_CHOICES, default='medio')
+    fynder_basic_type = models.ForeignKey('info.FynderBasicType', on_delete=models.SET_NULL, null=True, blank=True)
+    # TODO aggiungere il tipo di viaggio
+    # trip_type = models.CharField(max_length=20, choices=TRIP_TYPE_CHOICES, default='Any')
 
     def get_fynders(self):
         trip_fynders = TripFynder.objects.filter(trip=self)
@@ -105,3 +110,4 @@ class TripFynder(models.Model):
                 trip_fynder.save()
 
         super().delete(*args, **kwargs)
+

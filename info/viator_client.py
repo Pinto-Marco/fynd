@@ -1,6 +1,5 @@
 import requests
 from django.conf import settings
-from . import viator_client
 
 
 def fetch_viator_product_code(productCode):

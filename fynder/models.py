@@ -13,8 +13,8 @@ class Fynder(AbstractUser):
 
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150, unique=True)
-    first_name = models.CharField(max_length=150)
-    last_name = models.CharField(max_length=150)
+    first_name = models.CharField(max_length=150, blank=True, null=True)
+    last_name = models.CharField(max_length=150, blank=True, null=True)
     password = models.CharField(max_length=128)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
@@ -32,9 +32,9 @@ class Fynder(AbstractUser):
     interest_food_gastronomy = models.FloatField(default=0.00, help_text="Interest level in Food & Gastronomy (0-100)")
     interest_nightlife_party = models.FloatField(default=0.00, help_text="Interest level in Nightlife & Party (0-100)")
     interest_wellness_spa = models.FloatField(default=0.00, help_text="Interest level in Wellness & Spa (0-100)")
-    interest_sport_adventure = models.FloatField(default=0.00, help_text="Interest level in Sport & Adventure (0-100)")
-    interest_music_festivals = models.FloatField(default=0.00, help_text="Interest level in Music & Festivals (0-100)")
-    interest_shopping_fashion = models.FloatField(default=0.00, help_text="Interest level in Shopping & Fashion (0-100)")
+    # interest_sport_adventure = models.FloatField(default=0.00, help_text="Interest level in Sport & Adventure (0-100)")
+    # interest_music_festivals = models.FloatField(default=0.00, help_text="Interest level in Music & Festivals (0-100)")
+    # interest_shopping_fashion = models.FloatField(default=0.00, help_text="Interest level in Shopping & Fashion (0-100)")
 
     def get_all_sign_up_answers(self):
         fynder_answers = SignUpFynderAnswer.objects.filter(fynder=self)
@@ -86,9 +86,9 @@ class Fynder(AbstractUser):
         total_interest_food_gastronomy = 0.0
         total_interest_nightlife_party = 0.0
         total_interest_wellness_spa = 0.0
-        total_interest_sport_adventure = 0.0
-        total_interest_music_festivals = 0.0
-        total_interest_shopping_fashion = 0.0
+        # total_interest_sport_adventure = 0.0
+        # total_interest_music_festivals = 0.0
+        # total_interest_shopping_fashion = 0.0
         questions = SignUpQuestion.objects.all()
         total_weight = 0.0
 
@@ -111,9 +111,9 @@ class Fynder(AbstractUser):
                 question_interest_food_gastronomy = 0.0
                 question_interest_nightlife_party = 0.0
                 question_interest_wellness_spa = 0.0
-                question_interest_sport_adventure = 0.0
-                question_interest_music_festivals = 0.0
-                question_interest_shopping_fashion = 0.0
+                # question_interest_sport_adventure = 0.0
+                # question_interest_music_festivals = 0.0
+                # question_interest_shopping_fashion = 0.0
                 #ciclo su risposte
                 for sign_up_answer in sign_up_answers:
                     question_interest_culture_heritage += base * sign_up_answer.answer.interest_culture_heritage
@@ -121,9 +121,9 @@ class Fynder(AbstractUser):
                     question_interest_food_gastronomy += base * sign_up_answer.answer.interest_food_gastronomy
                     question_interest_nightlife_party += base * sign_up_answer.answer.interest_nightlife_party
                     question_interest_wellness_spa += base * sign_up_answer.answer.interest_wellness_spa
-                    question_interest_sport_adventure += base * sign_up_answer.answer.interest_sport_adventure
-                    question_interest_music_festivals += base * sign_up_answer.answer.interest_music_festivals
-                    question_interest_shopping_fashion += base * sign_up_answer.answer.interest_shopping_fashion
+                    # question_interest_sport_adventure += base * sign_up_answer.answer.interest_sport_adventure
+                    # question_interest_music_festivals += base * sign_up_answer.answer.interest_music_festivals
+                    # question_interest_shopping_fashion += base * sign_up_answer.answer.interest_shopping_fashion
                 
                 if question_interest_culture_heritage > max_score:
                     question_interest_culture_heritage = max_score
@@ -135,21 +135,21 @@ class Fynder(AbstractUser):
                     question_interest_nightlife_party = max_score
                 if question_interest_wellness_spa > max_score:
                     question_interest_wellness_spa = max_score
-                if question_interest_sport_adventure > max_score:
-                    question_interest_sport_adventure = max_score
-                if question_interest_music_festivals > max_score:
-                    question_interest_music_festivals = max_score
-                if question_interest_shopping_fashion > max_score:
-                    question_interest_shopping_fashion = max_score
+                # if question_interest_sport_adventure > max_score:
+                #     question_interest_sport_adventure = max_score
+                # if question_interest_music_festivals > max_score:
+                #     question_interest_music_festivals = max_score
+                # if question_interest_shopping_fashion > max_score:
+                #     question_interest_shopping_fashion = max_score
 
                 total_interest_culture_heritage += question_interest_culture_heritage
                 total_interest_nature_outdoors += question_interest_nature_outdoors
                 total_interest_food_gastronomy += question_interest_food_gastronomy
                 total_interest_nightlife_party += question_interest_nightlife_party
                 total_interest_wellness_spa += question_interest_wellness_spa
-                total_interest_sport_adventure += question_interest_sport_adventure
-                total_interest_music_festivals += question_interest_music_festivals
-                total_interest_shopping_fashion += question_interest_shopping_fashion
+                # total_interest_sport_adventure += question_interest_sport_adventure
+                # total_interest_music_festivals += question_interest_music_festivals
+                # total_interest_shopping_fashion += question_interest_shopping_fashion
 
 
         if total_weight > 0:
@@ -158,18 +158,18 @@ class Fynder(AbstractUser):
             self.interest_food_gastronomy = (total_interest_food_gastronomy / total_weight) * 100
             self.interest_nightlife_party = (total_interest_nightlife_party / total_weight) * 100
             self.interest_wellness_spa = (total_interest_wellness_spa / total_weight) * 100
-            self.interest_sport_adventure = (total_interest_sport_adventure / total_weight) * 100
-            self.interest_music_festivals = (total_interest_music_festivals / total_weight) * 100
-            self.interest_shopping_fashion = (total_interest_shopping_fashion / total_weight) * 100
+            # self.interest_sport_adventure = (total_interest_sport_adventure / total_weight) * 100
+            # self.interest_music_festivals = (total_interest_music_festivals / total_weight) * 100
+            # self.interest_shopping_fashion = (total_interest_shopping_fashion / total_weight) * 100
             self.save()
 
         return self
 
-    def get_cards(self):
-        fynder_cards_collections = FynderCardsCollection.objects.filter(fynder=self)
-        if not fynder_cards_collections:
+    def get_fynder_types(self):
+        fynder_types_collections = FynderTypesCollection.objects.filter(fynder=self)
+        if not fynder_types_collections:
             return []
-        return [fynder_cards_collection.card for fynder_cards_collection in fynder_cards_collections]
+        return [fynder_types_collection.basic_type for fynder_types_collection in fynder_types_collections]
 
     
 class FynderFoodPreference(models.Model):
@@ -218,9 +218,9 @@ class SignUpAnswer(models.Model):
     interest_food_gastronomy = models.FloatField(default=0.0, help_text="Interest level in Food & Gastronomy (0-0.5-1)")
     interest_nightlife_party = models.FloatField(default=0.0, help_text="Interest level in Nightlife & Party (0-0.5-1)")
     interest_wellness_spa = models.FloatField(default=0.0, help_text="Interest level in Wellness & Spa (0-0.5-1)")
-    interest_sport_adventure = models.FloatField(default=0.0, help_text="Interest level in Sport & Adventure (0-0.5-1)")
-    interest_music_festivals = models.FloatField(default=0.0, help_text="Interest level in Music & Festivals (0-0.5-1)")
-    interest_shopping_fashion = models.FloatField(default=0.0, help_text="Interest level in Shopping & Fashion (0-0.5-1)")
+    # interest_sport_adventure = models.FloatField(default=0.0, help_text="Interest level in Sport & Adventure (0-0.5-1)")
+    # interest_music_festivals = models.FloatField(default=0.0, help_text="Interest level in Music & Festivals (0-0.5-1)")
+    # interest_shopping_fashion = models.FloatField(default=0.0, help_text="Interest level in Shopping & Fashion (0-0.5-1)")
 
 
     def __str__(self):
@@ -238,8 +238,7 @@ class Friendship(models.Model):
         return f"{self.fynder_1.username} - {self.fynder_2.username}"
 
 
-class FynderCardsCollection(models.Model):
-    from info import models as info_models
+class FynderTypesCollection(models.Model):
     
     fynder = models.ForeignKey(Fynder, on_delete=models.CASCADE)
-    card = models.ForeignKey(info_models.FynderBasicCard, on_delete=models.CASCADE)
+    basic_type = models.ForeignKey('info.FynderBasicType', on_delete=models.CASCADE, null=True, blank=True)

@@ -494,14 +494,14 @@ class CustomTokenBlacklistView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-class SignUpFynderBasicCardsView(APIView):
+class SignUpFynderBasicTypeView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = fynder_serializers.SignUpFynderBasicCardsSerializer
+    serializer_class = fynder_serializers.SignUpFynderBasicTypesSerializer
     @extend_schema(
         # la request è una lista di id 
-        request=fynder_serializers.SignUpFynderBasicCardsSerializer(many=True),
-        summary="Sign Up Basic Cards",
-        description="Adds basic cards to the logged-in user's basic cards list.",
+        request=fynder_serializers.SignUpFynderBasicTypesSerializer(many=True),
+        summary="Sign Up Basic Fynder Type",
+        description="Adds basic types to the logged-in user's basic types list.",
     )
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, many=True, context={'request': request})

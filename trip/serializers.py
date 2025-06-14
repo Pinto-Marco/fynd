@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from trip import models as trip_models
 from fynder import models as fynder_models
+from info import models as info_models
 
 
 class TripQuestionSerializer(serializers.ModelSerializer):
@@ -134,6 +135,12 @@ class TripFynderAnswerAllTogetherSerializer(serializers.Serializer):
                 # Validate destination location if needed
                 if not answer_data['answer'].strip():
                     raise serializers.ValidationError("Destination location cannot be empty")
+            elif question.question_type == 'fynder_basic_type':
+                try:
+                    fynder_basic_type = info_models.FynderBasicType.objects.get(id=answer_data['answer'])
+                except info_models.FynderBasicType.DoesNotExist:
+                    raise serializers.ValidationError(f"Fynder Basic Type {answer_data['answer']} not found")
+                    
 
             answer_data['question'] = question
 
@@ -169,6 +176,9 @@ class TripFynderAnswerAllTogetherSerializer(serializers.Serializer):
                 trip.budget = float(answer)
             elif question.question_type == 'intensity':
                 trip.trip_intensity = answer
+            elif question.question_type == 'fynder_basic_type':
+                fynder_basic_type = info_models.FynderBasicType.objects.get(id=answer)
+                trip.fynder_basic_type = fynder_basic_type
 
             # Create TripQuestionAnswer
             trip_models.TripFynderAnswer.objects.create(
